@@ -310,16 +310,16 @@
 			const urlParams = new URLSearchParams(window.location.search);
 			const txid = urlParams.get("txid");
 			const secret = urlParams.get("secret");
-			const receiverAddress = urlParams.get("receiverAddress");
+			const receiverAddress = urlParams.get("receiver");
 			if (txid && secret && receiverAddress) {
 				document.getElementById("transactionId").value = txid;
 				document.getElementById("redeemSecret").value = secret;
-				document.getElementById("receiverAddress").value = receiverAddress;
+				document.getElementById("receiverAddress").value = receiver;
 				const tx = await getTx(txid);
 				const unlockingScript = await buildHashUnlockingStack(
 					tx,
 					secret,
-					receiverAddress
+					receiver
 				);
 				document.getElementById("unlockingScriptHex").innerHTML =
 					unlockingScript.toString("hex");
