@@ -263,7 +263,7 @@
 					.add(Buffer.from(secretHash, "hex"))
 					.add(bsv.Opcode.OP_EQUAL)
 					.add(bsv.Opcode.OP_RETURN)
-					.add(Buffer.from(message).toString("utf8"));
+					.add(Buffer.from(message));
 				// add message
 
 				console.log(amount);
