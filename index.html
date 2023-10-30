@@ -125,6 +125,9 @@
 			</div>
 		</div>
 		<script>
+			const Buffer = bsv.deps.Buffer;
+			const hash = bsv.crypto.Hash;
+			const sha256 = (buffer) => hash.sha256(buffer);
 			const createQrCode = (text) => {
 				const canvas = document.createElement("canvas");
 				const qr = new QRious({
@@ -163,7 +166,6 @@
 				document.getElementById("receiverAddress").value = address;
 			});
 
-			const Buffer = bsv.deps.Buffer;
 			const getUtxos = async (address) => {
 				// whatsonchain
 				const url = `https://api.whatsonchain.com/v1/bsv/main/address/${address}/unspent`;
@@ -204,7 +206,12 @@
 				console.log(utxos);
 				const tx = new bsv.Transaction();
 				tx.from(utxos);
-				const secretHash = bsv.crypto.Hash.sha256(Buffer.from(secret));
+				console.log(secret.toString("hex"));
+				// create sha256 hash of secret
+				const hash = sha256(Buffer.from(secret));
+				console.log(hash.toString("hex"));
+				const secretHash = sha256(hash).toString("hex");
+				console.log(secretHash.toString("hex"));
 				const lock = new bsv.Script.empty()
 					.add(bsv.Opcode.OP_SHA256)
 					.add(Buffer.from(secretHash, "hex"))
@@ -230,10 +237,8 @@
 				secret,
 				receiverAddress
 			) => {
-				const secretHash = bsv.crypto.Hash.sha256(Buffer.from(secret));
-				const unlockingScript = new bsv.Script.empty().add(
-					Buffer.from(secret, "hex")
-				);
+				const secretHash = sha256(Buffer.from(secret)).toString("hex");
+				console.log(secretHash);
 				const utxo = txinfo.vout[0];
 				const script = bsv.Script.fromHex(utxo.scriptPubKey.hex);
 				const sats = Math.floor(utxo.value * 100000000);
@@ -241,6 +246,11 @@
 				// additional funding input
 				// const additionalUtxos = await getUtxos(receiverAddress);
 
+				const unlockingScript = new bsv.Script().add(
+					// secret hash
+					Buffer.from(secretHash, "hex")
+				);
+				// .add(Buffer.from(secretHash, "hex"));
 				const tx = new bsv.Transaction();
 				tx.feePerKb(50);
 				tx.from({
@@ -251,7 +261,6 @@
 				});
 				tx.to(receiverAddress, sats - 10);
 				// add additional funding inputs
-
 				// tx.from(additionalUtxos);
 				// tx.change(utxoFunding);
 				tx.inputs[0].setScript(unlockingScript);
@@ -266,6 +275,7 @@
 				const keys = JSON.parse(localStorage.getItem("keys"));
 				const { privateKey, address } = keys;
 				const amount = document.getElementById("amount").value;
+				const secret = document.getElementById("secret").value;
 				const tx = await buildHashLock(address, privateKey, secret, amount);
 				document.getElementById("lockingScriptHex").innerHTML =
 					tx.toString("hex");
