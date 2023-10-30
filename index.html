@@ -289,10 +289,11 @@
 			) => {
 				const secretHash = sha256(Buffer.from(secret)).toString("hex");
 				console.log(secretHash);
-				const utxo = txinfo.vout[0];
+				// const utxo = txinfo.vout[0];
 				const nonstandardOutputs = txinfo.vout.filter(
 					(output) => output.scriptPubKey.type === "nonstandard"
 				);
+				const utxo = nonstandardOutputs[0];
 				console.log(nonstandardOutputs);
 				const script = bsv.Script.fromHex(utxo.scriptPubKey.hex);
 				const sats = Math.floor(utxo.value * 100000000);
