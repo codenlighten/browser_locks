@@ -215,6 +215,13 @@
 				<button id="sendBsv">Send BSV</button>
 				<p id="txid3"></p>
 			</div>
+			<div class="container" id="copyright2023NFTYLocksTechnology">
+				<p>
+					<a href="https://nftylocks.com" target="_blank"
+						>© 2023 NFTYLocks Technology</a
+					>
+				</p>
+			</div>
 		</div>
 		<script>
 			const Buffer = bsv.deps.Buffer;
@@ -328,8 +335,8 @@
 					.add(Buffer.from(secretHash, "hex"))
 					.add(bsv.Opcode.OP_EQUAL)
 					.add(bsv.Opcode.OP_RETURN)
-					.add(Buffer.from(message))
-					.add(Buffer.from("NFTYLocks Technology"));
+					.add(Buffer.from("© 2023 NFTYLocks Technology"))
+					.add(Buffer.from(message));
 				// add message
 
 				console.log(amount);
