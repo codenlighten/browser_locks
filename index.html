@@ -71,12 +71,27 @@
 			body {
 				word-wrap: break-word;
 			}
+			#redeemLock {
+				margin-top: 1rem;
+			}
+
+			#logo {
+				width: 100%;
+				max-width: 400px;
+				margin-bottom: 1rem;
+			}
+
+			@media (min-width: 768px) {
+				.container {
+					padding: 2rem;
+				}
+			}
 		</style>
 	</head>
 	<body>
 		<div class="container" id="header">
+			<img id="logo" src="./logo.png" alt="" />
 			<h1>BSV Locking & Redeem Scripts</h1>
-			<!-- address, qrcode of address, &  balance -->
 			<div class="address">
 				<div class="address__qrcode">
 					<!-- canvas -->
