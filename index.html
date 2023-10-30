@@ -151,11 +151,16 @@
 			// onload check if localstorage has keys
 			document.addEventListener("DOMContentLoaded", async () => {
 				let keys = localStorage.getItem("keys");
+				let address;
+
 				if (!keys) {
 					keys = generateKeys();
 					localStorage.setItem("keys", JSON.stringify(keys));
 				}
-				const { address } = JSON.parse(keys);
+				keys = JSON.parse(keys);
+				const { privateKey } = keys;
+				address = keys.address;
+				console.log(address);
 				document.querySelector(".address__text").innerHTML = address;
 				await createQrCode(address);
 				const balance = await getBalance(address);
