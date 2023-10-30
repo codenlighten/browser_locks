@@ -185,6 +185,19 @@
 				<button id="broadcastRedeemTx">Broadcast</button>
 				<p id="txid2"></p>
 			</div>
+			<div class="commonLocks_item">
+				<h1>Send BSV</h1>
+				<label for="">Recipient's Address</label>
+				<input
+					type="text"
+					id="receiverAddress2"
+					placeholder="receiver address"
+				/>
+				<label for="">Amount</label>
+				<input type="number" id="amount2" placeholder="amount" />
+				<button id="sendBsv">Send BSV</button>
+				<p id="txid3"></p>
+			</div>
 		</div>
 		<script>
 			const Buffer = bsv.deps.Buffer;
@@ -419,6 +432,31 @@
 				const res = await broadcast(tx);
 				document.getElementById(
 					"txid2"
+				).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
+			});
+
+			const sendBsvBtn = document.getElementById("sendBsv");
+			sendBsvBtn.addEventListener("click", async () => {
+				const keys = JSON.parse(localStorage.getItem("keys"));
+				const { privateKey, address } = keys;
+				const receiverAddress =
+					document.getElementById("receiverAddress2").value;
+				const amount = document.getElementById("amount2").value;
+				let utxos = await getUtxos(address);
+				// convert to whatsonchain format
+				utxos = utxos.filter((utxo) => utxo.satoshis > amount);
+				const totalSats = utxos.reduce((acc, utxo) => acc + utxo.satoshis, 0);
+				console.log(utxos);
+				const tx = new bsv.Transaction();
+				tx.from(utxos);
+				tx.to(receiverAddress, amount);
+				tx.feePerKb(50);
+				tx.change(address);
+				tx.sign(privateKey);
+				console.log(tx.toString());
+				const res = await broadcast(tx.toString());
+				document.getElementById(
+					"txid3"
 				).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
 			});
 
