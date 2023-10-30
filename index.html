@@ -98,6 +98,13 @@
 				margin-bottom: 1rem;
 			}
 
+			#broadcast {
+				margin-bottom: 1rem;
+			}
+			#broadcastRedeemTx {
+				margin-bottom: 1rem;
+			}
+
 			@media (min-width: 768px) {
 				.container {
 					padding: 2rem;
@@ -154,8 +161,10 @@
 				<p id="lockingScriptHex"></p>
 				<!-- asm -->
 				<p id="lockingScriptAsm"></p>
+				<button id="broadcast">Broadcast</button>
+				<p id="txid"></p>
 			</div>
-			<div class="container" id="redeemLock">
+			<div class="commonLocks__item">
 				<h1>Redeem a Lock</h1>
 				<!-- input for transaction id -->
 				<input type="text" id="transactionId" placeholder="transaction id" />
@@ -173,6 +182,8 @@
 				<p id="unlockingScriptHex"></p>
 				<!-- asm -->
 				<p id="unlockingScriptAsm"></p>
+				<button id="broadcastRedeemTx">Broadcast</button>
+				<p id="txid2"></p>
 			</div>
 		</div>
 		<script>
@@ -187,6 +198,16 @@
 					size: 200,
 				});
 				document.querySelector(".address__qrcode").appendChild(canvas);
+			};
+
+			const broadcast = async (tx) => {
+				const url = "https://api.whatsonchain.com/v1/bsv/main/tx/raw";
+				const res = await fetch(url, {
+					method: "POST",
+					body: tx.toString(),
+				});
+				const json = await res.json();
+				return json;
 			};
 
 			const generateKeys = () => {
@@ -379,6 +400,25 @@
 				document.getElementById("unlockingScriptAsm").innerHTML =
 					unlockingScript.inputs[0].script.toASM();
 			});
+
+			const broadcastBtn = document.getElementById("broadcast");
+			broadcastBtn.addEventListener("click", async () => {
+				const tx = document.getElementById("lockingScriptHex").innerHTML;
+				const res = await broadcast(tx);
+				document.getElementById(
+					"txid"
+				).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
+			});
+
+			const broadcastRedeemTxBtn = document.getElementById("broadcastRedeemTx");
+			broadcastRedeemTxBtn.addEventListener("click", async () => {
+				const tx = document.getElementById("unlockingScriptHex").innerHTML;
+				const res = await broadcast(tx);
+				document.getElementById(
+					"txid2"
+				).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
+			});
+
 			// check url params for txid ,  secret, and receiver address
 			const urlParams = new URLSearchParams(window.location.search);
 			const txid = urlParams.get("txid");
