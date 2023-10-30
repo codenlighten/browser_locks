@@ -204,13 +204,13 @@
 			const buildHashLock = async (address, privateKey, secret, amount) => {
 				let utxos = await getUtxos(address);
 				// convert to whatsonchain format
-				utxos = utxos.filter((utxo) => utxo.satoshis > 5000);
+				// utxos = utxos.filter((utxo) => utxo.satoshis > amount);
 				const totalSats = utxos.reduce((acc, utxo) => acc + utxo.satoshis, 0);
 				console.log(utxos);
 				const tx = new bsv.Transaction();
 				tx.from(utxos);
-				console.log(secret.toString("hex"));
 				// create sha256 hash of secret
+				console.log(secret);
 				const hash = sha256(Buffer.from(secret));
 				console.log(hash.toString("hex"));
 				const secretHash = sha256(hash).toString("hex");
@@ -306,6 +306,26 @@
 				document.getElementById("unlockingScriptAsm").innerHTML =
 					unlockingScript.inputs[0].script.toASM();
 			});
+			// check url params for txid ,  secret, and receiver address
+			const urlParams = new URLSearchParams(window.location.search);
+			const txid = urlParams.get("txid");
+			const secret = urlParams.get("secret");
+			const receiverAddress = urlParams.get("receiverAddress");
+			if (txid && secret && receiverAddress) {
+				document.getElementById("transactionId").value = txid;
+				document.getElementById("redeemSecret").value = secret;
+				document.getElementById("receiverAddress").value = receiverAddress;
+				const tx = await getTx(txid);
+				const unlockingScript = await buildHashUnlockingStack(
+					tx,
+					secret,
+					receiverAddress
+				);
+				document.getElementById("unlockingScriptHex").innerHTML =
+					unlockingScript.toString("hex");
+				document.getElementById("unlockingScriptAsm").innerHTML =
+					unlockingScript.inputs[0].script.toASM();
+			}
 		</script>
 	</body>
 </html>
