@@ -259,7 +259,6 @@
 				return tx;
 			};
 
-			const secret = document.getElementById("secret").value;
 			const generateLockingScriptBtn = document.getElementById(
 				"generateLockingScript"
 			);
@@ -277,12 +276,12 @@
 				"generateUnlockingScript"
 			);
 			generateUnlockingScriptBtn.addEventListener("click", async () => {
+				const secret = document.getElementById("redeemSecret").value;
 				const txid = document.getElementById("transactionId").value;
 				const receiverAddress =
 					document.getElementById("receiverAddress").value;
 				const tx = await getTx(txid);
 				console.log(tx);
-				const secret = document.getElementById("secret").value;
 				const unlockingScript = await buildHashUnlockingStack(
 					tx,
 					secret,
