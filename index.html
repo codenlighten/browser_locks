@@ -377,8 +377,9 @@
 				);
 				document.getElementById("lockingScriptHex").innerHTML =
 					tx.toString("hex");
-				document.getElementById("lockingScriptAsm").innerHTML =
-					tx.outputs[0].script.toASM();
+				document.getElementById(
+					"lockingScriptAsm"
+				).innerHTML = `<p>ASM: ${tx.outputs[0].script.toASM()}</p>`;
 			});
 			const generateUnlockingScriptBtn = document.getElementById(
 				"generateUnlockingScript"
@@ -397,8 +398,9 @@
 				);
 				document.getElementById("unlockingScriptHex").innerHTML =
 					unlockingScript.toString("hex");
-				document.getElementById("unlockingScriptAsm").innerHTML =
-					unlockingScript.inputs[0].script.toASM();
+				document.getElementById(
+					"unlockingScriptAsm"
+				).innerHTML = `<p>ASM: ${unlockingScript.inputs[0].script.toASM()}</p>`;
 			});
 
 			const broadcastBtn = document.getElementById("broadcast");
