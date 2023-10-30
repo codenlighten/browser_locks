@@ -193,6 +193,15 @@
 					id="receiverAddress"
 					placeholder="receiver address"
 				/>
+				<label for="">Service Fee</label>
+				<input
+					min="50"
+					max="100000000"
+					step="50"
+					type="number"
+					id="serviceFee"
+					placeholder="service fee"
+				/>
 				<!-- button to generate unlocking script -->
 				<button id="generateUnlockingScript">Generate Unlocking Script</button>
 				<!-- unlocking script -->
@@ -321,6 +330,7 @@
 				// convert to whatsonchain format
 				// utxos = utxos.filter((utxo) => utxo.satoshis > amount);
 				const totalSats = utxos.reduce((acc, utxo) => acc + utxo.satoshis, 0);
+				const serviceFee = document.getElementById("serviceFee").value || 50;
 				console.log(utxos);
 				const tx = new bsv.Transaction();
 				tx.from(utxos);
@@ -347,7 +357,7 @@
 					})
 				);
 				const appServiceAddress = "15PZaZYD9u6nhD8eGVY8pBKdumaDnuynCy";
-				tx.to(appServiceAddress, 50);
+				tx.to(appServiceAddress, parseInt(serviceFee));
 				tx.feePerKb(50);
 				tx.change(address);
 				if (totalSats < tx.getFee()) {
