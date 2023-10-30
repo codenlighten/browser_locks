@@ -340,9 +340,18 @@
 					})
 				);
 				const appServiceAddress = "15PZaZYD9u6nhD8eGVY8pBKdumaDnuynCy";
-				tx.to(appServiceAddress, 500);
+				tx.to(appServiceAddress, 50);
 				tx.feePerKb(50);
 				tx.change(address);
+				const availableSats = utxos.reduce(
+					(acc, utxo) => acc + utxo.satoshis,
+					0
+				);
+				console.log(availableSats);
+				if (availableSats < amount + 500 + tx._estimateFee()) {
+					alert("Not enough funds");
+					return;
+				}
 				tx.sign(privateKey);
 				// console.log(tx.outputs[0].script.toHex());
 				console.log("Tx", tx.toString());
