@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<!-- bsv cdn unpkg -->
+		<script src="https://unpkg.com/bsv@1.5"></script>
+		<!-- qrious cdn -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+		<title>BSV Locking & Redeem Scripts</title>
+		<!-- montserrat -->
+		<link
+			href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+			rel="stylesheet"
+		/>
+		<!-- style -->
+		<style>
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+			body {
+				font-family: "Montserrat", sans-serif;
+				background-color: #f5f5f5;
+			}
+			.container {
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 1rem;
+			}
+			#header {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+			}
+			#header h1 {
+				margin-bottom: 1rem;
+			}
+			.address {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				margin-bottom: 1rem;
+			}
+			.address__qrcode {
+				margin-bottom: 1rem;
+			}
+			.address__text {
+				margin-bottom: 1rem;
+			}
+			.address__balance {
+				margin-bottom: 1rem;
+			}
+			.commonLocks__item {
+				margin-bottom: 1rem;
+			}
+			.commonLocks__item h3 {
+				margin-bottom: 0.5rem;
+			}
+			.commonLocks__item p {
+				margin-bottom: 0.5rem;
+			}
+			.commonLocks__item input {
+				margin-bottom: 0.5rem;
+			}
+			.commonLocks__item button {
+				margin-bottom: 0.5rem;
+			}
+
+			body {
+				word-wrap: break-word;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container" id="header">
+			<h1>BSV Locking & Redeem Scripts</h1>
+			<!-- address, qrcode of address, &  balance -->
+			<div class="address">
+				<div class="address__qrcode">
+					<!-- canvas -->
+				</div>
+				<div class="address__text"></div>
+				<div class="address__balance"></div>
+			</div>
+		</div>
+		<div class="container" id="commonLocks">
+			<h2>Common Locking Scripts</h2>
+
+			<!-- secret phrase -->
+			<div class="commonLocks__item">
+				<h3>Hash Lock</h3>
+				<label for="">Add Your Secret Below</label>
+				<!-- input for secret -->
+				<input type="text" id="secret" placeholder="secret" />
+				<!-- input for amount -->
+				<input type="number" id="amount" placeholder="amount" />
+				<!-- button to generate locking script -->
+				<button id="generateLockingScript">Generate Locking Script</button>
+				<!-- locking script -->
+				<p id="lockingScriptHex"></p>
+				<!-- asm -->
+				<p id="lockingScriptAsm"></p>
+			</div>
+			<div class="container" id="redeemLock">
+				<h1>Redeem a Lock</h1>
+				<!-- input for transaction id -->
+				<input type="text" id="transactionId" placeholder="transaction id" />
+				<!-- input for secret -->
+				<input type="text" id="redeemSecret" placeholder="secret" />
+				<!-- receiver address -->
+				<input
+					type="text"
+					id="receiverAddress"
+					placeholder="receiver address"
+				/>
+
+				<!-- button to generate unlocking script -->
+				<button id="generateUnlockingScript">Generate Unlocking Script</button>
+				<!-- unlocking script -->
+				<p id="unlockingScriptHex"></p>
+				<!-- asm -->
+				<p id="unlockingScriptAsm"></p>
+			</div>
+		</div>
+		<script>
+			const createQrCode = (text) => {
+				const canvas = document.createElement("canvas");
+				const qr = new QRious({
+					element: canvas,
+					value: text,
+					size: 200,
+				});
+				document.querySelector(".address__qrcode").appendChild(canvas);
+			};
+
+			const generateKeys = () => {
+				const privateKey = new bsv.PrivateKey();
+				const publicKey = bsv.PublicKey.fromPrivateKey(privateKey);
+				const address = bsv.Address.fromPublicKey(publicKey);
+				return {
+					privateKey: privateKey.toString(),
+					publicKey: publicKey.toString(),
+					address: address.toString(),
+				};
+			};
+			// onload check if localstorage has keys
+			document.addEventListener("DOMContentLoaded", async () => {
+				let keys = localStorage.getItem("keys");
+				if (!keys) {
+					keys = generateKeys();
+					localStorage.setItem("keys", JSON.stringify(keys));
+				}
+				const { address } = JSON.parse(keys);
+				document.querySelector(".address__text").innerHTML = address;
+				await createQrCode(address);
+				const balance = await getBalance(address);
+				document.querySelector(
+					".address__balance"
+				).innerHTML = `Balance: ${balance} sats`;
+				// add address to receiver address
+				document.getElementById("receiverAddress").value = address;
+			});
+
+			const Buffer = bsv.deps.Buffer;
+			const getUtxos = async (address) => {
+				// whatsonchain
+				const url = `https://api.whatsonchain.com/v1/bsv/main/address/${address}/unspent`;
+				const res = await fetch(url);
+				const json = await res.json();
+				const utxos = [];
+				json.forEach((utxo) => {
+					utxos.push({
+						txid: utxo.tx_hash,
+						vout: utxo.tx_pos,
+						script: bsv.Script.buildPublicKeyHashOut(address).toHex(),
+						satoshis: utxo.value,
+					});
+				});
+				return utxos;
+			};
+			const getBalance = async (address) => {
+				// whatsonchain
+				const url = `https://api.whatsonchain.com/v1/bsv/main/address/${address}/balance`;
+				const res = await fetch(url);
+				const json = await res.json();
+				const balance = json.confirmed + json.unconfirmed;
+				return balance;
+			};
+			const getTx = async (txid) => {
+				// whatsonchain
+				const url = `https://api.whatsonchain.com/v1/bsv/main/tx/hash/${txid}`;
+				const res = await fetch(url);
+				const json = await res.json();
+				return json;
+			};
+
+			const buildHashLock = async (address, privateKey, secret, amount) => {
+				let utxos = await getUtxos(address);
+				// convert to whatsonchain format
+				utxos = utxos.filter((utxo) => utxo.satoshis > 5000);
+				const totalSats = utxos.reduce((acc, utxo) => acc + utxo.satoshis, 0);
+				console.log(utxos);
+				const tx = new bsv.Transaction();
+				tx.from(utxos);
+				const secretHash = bsv.crypto.Hash.sha256(Buffer.from(secret));
+				const lock = new bsv.Script.empty()
+					.add(bsv.Opcode.OP_SHA256)
+					.add(Buffer.from(secretHash, "hex"))
+					.add(bsv.Opcode.OP_EQUAL);
+				console.log(amount);
+				tx.addOutput(
+					new bsv.Transaction.Output({
+						script: lock,
+						satoshis: parseInt(amount),
+					})
+				);
+				tx.feePerKb(50);
+				tx.change(address);
+				tx.sign(privateKey);
+				// console.log(tx.outputs[0].script.toHex());
+				console.log("Tx", tx.toString());
+				// console log script in asm
+				// console.log(tx.outputs[0].script.toASM());
+				return tx;
+			};
+			const buildHashUnlockingStack = async (
+				txinfo,
+				secret,
+				receiverAddress
+			) => {
+				const secretHash = bsv.crypto.Hash.sha256(Buffer.from(secret));
+				const unlockingScript = new bsv.Script.empty().add(
+					Buffer.from(secret, "hex")
+				);
+				const utxo = txinfo.vout[0];
+				const script = bsv.Script.fromHex(utxo.scriptPubKey.hex);
+				const sats = utxo.value * 100000000;
+				console.log(sats);
+				// additional funding input
+				// const additionalUtxos = await getUtxos(receiverAddress);
+
+				const tx = new bsv.Transaction();
+				tx.from({
+					txid: txinfo.txid,
+					vout: 0,
+					script: script,
+					satoshis: sats,
+				});
+				tx.addOutput(
+					new bsv.Transaction.Output({
+						script: unlockingScript,
+						satoshis: sats,
+					})
+				);
+				// add additional funding inputs
+
+				// tx.from(additionalUtxos);
+				// tx.change(utxoFunding);
+				console.log(tx.uncheckedSerialize());
+				return tx;
+			};
+
+			const secret = document.getElementById("secret").value;
+			const generateLockingScriptBtn = document.getElementById(
+				"generateLockingScript"
+			);
+			generateLockingScriptBtn.addEventListener("click", async () => {
+				const keys = JSON.parse(localStorage.getItem("keys"));
+				const { privateKey, address } = keys;
+				const amount = document.getElementById("amount").value;
+				const tx = await buildHashLock(address, privateKey, secret, amount);
+				document.getElementById("lockingScriptHex").innerHTML =
+					tx.outputs[0].script.toHex();
+				document.getElementById("lockingScriptAsm").innerHTML =
+					tx.outputs[0].script.toASM();
+			});
+			const generateUnlockingScriptBtn = document.getElementById(
+				"generateUnlockingScript"
+			);
+			generateUnlockingScriptBtn.addEventListener("click", async () => {
+				const txid = document.getElementById("transactionId").value;
+				const receiverAddress =
+					document.getElementById("receiverAddress").value;
+				const tx = await getTx(txid);
+				console.log(tx);
+				const secret = document.getElementById("secret").value;
+				const unlockingScript = await buildHashUnlockingStack(
+					tx,
+					secret,
+					receiverAddress
+				);
+				document.getElementById("unlockingScriptHex").innerHTML =
+					unlockingScript.inputs[0].script.toHex();
+				document.getElementById("unlockingScriptAsm").innerHTML =
+					unlockingScript.inputs[0].script.toASM();
+			});
+		</script>
+	</body>
+</html>
