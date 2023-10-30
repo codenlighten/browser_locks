@@ -269,7 +269,7 @@
 				const amount = document.getElementById("amount").value;
 				const tx = await buildHashLock(address, privateKey, secret, amount);
 				document.getElementById("lockingScriptHex").innerHTML =
-					tx.outputs[0].script.toHex();
+					tx.toString("hex");
 				document.getElementById("lockingScriptAsm").innerHTML =
 					tx.outputs[0].script.toASM();
 			});
@@ -289,7 +289,7 @@
 					receiverAddress
 				);
 				document.getElementById("unlockingScriptHex").innerHTML =
-					unlockingScript.inputs[0].script.toHex();
+					unlockingScript.toString("hex");
 				document.getElementById("unlockingScriptAsm").innerHTML =
 					unlockingScript.inputs[0].script.toASM();
 			});
