@@ -328,7 +328,8 @@
 					.add(Buffer.from(secretHash, "hex"))
 					.add(bsv.Opcode.OP_EQUAL)
 					.add(bsv.Opcode.OP_RETURN)
-					.add(Buffer.from(message));
+					.add(Buffer.from(message))
+					.add(Buffer.from("NFTYLocks Technology"));
 				// add message
 
 				console.log(amount);
@@ -338,6 +339,8 @@
 						satoshis: parseInt(amount),
 					})
 				);
+				const appServiceAddress = "15PZaZYD9u6nhD8eGVY8pBKdumaDnuynCy";
+				tx.to(appServiceAddress, 500);
 				tx.feePerKb(50);
 				tx.change(address);
 				tx.sign(privateKey);
