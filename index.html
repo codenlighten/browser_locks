@@ -221,6 +221,16 @@
 				/>
 				<label for="">Amount</label>
 				<input type="number" id="amount2" placeholder="amount" />
+				<label for="">Service Fee</label>
+				<input
+					min="0"
+					value="1"
+					max="100000000"
+					step="50"
+					type="number"
+					id="serviceFee2"
+					placeholder="service fee"
+				/>
 				<button id="sendBsv">Send BSV</button>
 				<p id="txid3"></p>
 			</div>
@@ -405,11 +415,15 @@
 					script: script,
 					satoshis: sats,
 				});
+				const serviceFee2 = document.getElementById("serviceFee2").value;
 				const estFee = tx._estimateFee();
-				tx.to(receiverAddress, sats - estFee);
+				tx.to(receiverAddress, sats - estFee - parseInt(serviceFee2));
 				// add additional funding inputs
 				// tx.from(additionalUtxos);
 				// tx.change(utxoFunding);
+				if (serviceFee2 && sats + estFee > parseInt(serviceFee2)) {
+					tx.to("15PZaZYD9u6nhD8eGVY8pBKdumaDnuynCy", parseInt(serviceFee2));
+				}
 				tx.inputs[0].setScript(unlockingScript);
 				console.log(tx.uncheckedSerialize());
 				return tx;
