@@ -128,6 +128,9 @@
 				<!-- input for amount -->
 				<input type="number" id="amount" placeholder="amount" />
 				<!-- button to generate locking script -->
+				<!-- add message -->
+				<label for="">Add a Message</label>
+				<input id="message" type="text" value="NFTYLocks" />
 				<button id="generateLockingScript">Generate Locking Script</button>
 				<!-- locking script -->
 				<p id="lockingScriptHex"></p>
@@ -231,7 +234,13 @@
 				return json;
 			};
 
-			const buildHashLock = async (address, privateKey, secret, amount) => {
+			const buildHashLock = async (
+				address,
+				privateKey,
+				secret,
+				message,
+				amount
+			) => {
 				let utxos = await getUtxos(address);
 				// convert to whatsonchain format
 				// utxos = utxos.filter((utxo) => utxo.satoshis > amount);
@@ -248,7 +257,11 @@
 				const lock = new bsv.Script.empty()
 					.add(bsv.Opcode.OP_SHA256)
 					.add(Buffer.from(secretHash, "hex"))
-					.add(bsv.Opcode.OP_EQUAL);
+					.add(bsv.Opcode.OP_EQUAL)
+					.add(bsv.Opcode.OP_RETURN)
+					.add(Buffer.from(message));
+				// add message
+
 				console.log(amount);
 				tx.addOutput(
 					new bsv.Transaction.Output({
@@ -310,7 +323,14 @@
 				const { privateKey, address } = keys;
 				const amount = document.getElementById("amount").value;
 				const secret = document.getElementById("secret").value;
-				const tx = await buildHashLock(address, privateKey, secret, amount);
+				const message = document.getElementById("message").value;
+				const tx = await buildHashLock(
+					address,
+					privateKey,
+					secret,
+					message,
+					amount
+				);
 				document.getElementById("lockingScriptHex").innerHTML =
 					tx.toString("hex");
 				document.getElementById("lockingScriptAsm").innerHTML =
