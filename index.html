@@ -204,7 +204,7 @@
 				const url = "https://api.whatsonchain.com/v1/bsv/main/tx/raw";
 				const res = await fetch(url, {
 					method: "POST",
-					body: tx.toString(),
+					body: JSON.stringify({ txhex: tx }),
 				});
 				const json = await res.json();
 				return json;
