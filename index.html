@@ -259,7 +259,8 @@
 					script: script,
 					satoshis: sats,
 				});
-				tx.to(receiverAddress, sats - 10);
+				const estFee = tx._estimateFee();
+				tx.to(receiverAddress, sats - estFee);
 				// add additional funding inputs
 				// tx.from(additionalUtxos);
 				// tx.change(utxoFunding);
