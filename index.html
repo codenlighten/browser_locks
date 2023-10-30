@@ -236,28 +236,25 @@
 				);
 				const utxo = txinfo.vout[0];
 				const script = bsv.Script.fromHex(utxo.scriptPubKey.hex);
-				const sats = utxo.value * 100000000;
+				const sats = Math.floor(utxo.value * 100000000);
 				console.log(sats);
 				// additional funding input
 				// const additionalUtxos = await getUtxos(receiverAddress);
 
 				const tx = new bsv.Transaction();
+				tx.feePerKb(50);
 				tx.from({
 					txid: txinfo.txid,
 					vout: 0,
 					script: script,
 					satoshis: sats,
 				});
-				tx.addOutput(
-					new bsv.Transaction.Output({
-						script: unlockingScript,
-						satoshis: sats,
-					})
-				);
+				tx.to(receiverAddress, sats - 10);
 				// add additional funding inputs
 
 				// tx.from(additionalUtxos);
 				// tx.change(utxoFunding);
+				tx.inputs[0].setScript(unlockingScript);
 				console.log(tx.uncheckedSerialize());
 				return tx;
 			};
