@@ -152,15 +152,13 @@
 			document.addEventListener("DOMContentLoaded", async () => {
 				let keys = localStorage.getItem("keys");
 				let address;
-
-				if (!keys) {
+				if (!localStorage.getItem("keys")) {
 					keys = generateKeys();
 					localStorage.setItem("keys", JSON.stringify(keys));
 				}
-				keys = JSON.parse(keys);
-				// const { privateKey } = keys;
+				keys = JSON.parse(localStorage.getItem("keys"));
+				const { privateKey } = keys;
 				address = keys.address;
-				console.log(address);
 				document.querySelector(".address__text").innerHTML = address;
 				await createQrCode(address);
 				const balance = await getBalance(address);
