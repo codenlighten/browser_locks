@@ -428,20 +428,26 @@
 			const secret = urlParams.get("secret");
 			const receiver = urlParams.get("address");
 			const checkParams = async () => {
-				if (txid && secret && receiverAddress) {
-					document.getElementById("transactionId").value = txid;
-					document.getElementById("redeemSecret").value = secret;
-					document.getElementById("receiverAddress").value = receiver;
-					const tx = await getTx(txid);
-					const unlockingScript = await buildHashUnlockingStack(
-						tx,
-						secret,
-						receiver
-					);
-					document.getElementById("unlockingScriptHex").innerHTML =
-						unlockingScript.toString("hex");
-					document.getElementById("unlockingScriptAsm").innerHTML =
-						unlockingScript.inputs[0].script.toASM();
+				if (txid || secret || receiverAddress) {
+					document.getElementById("transactionId").value = txid || "";
+					document.getElementById("redeemSecret").value = secret || "";
+					document.getElementById("receiverAddress").value = receiver || "";
+					let tx;
+					if (txid) {
+						tx = await getTx(txid);
+					}
+					let unlockingScript;
+					if (tx && secret && receiver) {
+						unlockingScript = await buildHashUnlockingStack(
+							tx,
+							secret,
+							receiver
+						);
+						document.getElementById("unlockingScriptHex").innerHTML =
+							unlockingScript.toString("hex");
+						document.getElementById("unlockingScriptAsm").innerHTML =
+							unlockingScript.inputs[0].script.toASM();
+					}
 				}
 			};
 			checkParams();
