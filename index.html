@@ -404,6 +404,7 @@
 			const broadcastBtn = document.getElementById("broadcast");
 			broadcastBtn.addEventListener("click", async () => {
 				const tx = document.getElementById("lockingScriptHex").innerHTML;
+				console.log(tx);
 				const res = await broadcast(tx);
 				document.getElementById(
 					"txid"
