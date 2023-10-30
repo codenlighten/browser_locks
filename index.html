@@ -454,6 +454,8 @@
 				tx.change(address);
 				tx.sign(privateKey);
 				console.log(tx.toString());
+				if (!confirm("Are you sure you want to send this transaction?")) return;
+
 				const res = await broadcast(tx.toString());
 				document.getElementById(
 					"txid3"
