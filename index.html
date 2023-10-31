@@ -550,24 +550,22 @@
 			});
 
 			// check url params for txid ,  secret, and receiver address
-			const urlParams = new URLSearchParams(window.location.search);
-			const txid = urlParams.get("txid");
-			const secret = urlParams.get("secret");
-			let localAddress = JSON.parse(localStorage.getItem("keys")).address;
-			let receiver = urlParams.get("address") || localAddress;
-			const checkParams = async () => {
-				if (txid || secret || receiver) {
-					document.getElementById("transactionId").value = txid || "";
-					document.getElementById("redeemSecret").value = secret || "";
-					document.getElementById("receiverAddress").value = receiver;
 
-					let unlockingScript;
-					if (txid.length > 1 && secret.length > 1 && receiver.length > 1) {
-						// trigger generate unlocking script button
-						document.getElementById("generateUnlockingScript").click();
-						// scroll to unlocking script
-						document.getElementById("unlockingScriptHex").scrollIntoView();
-					}
+			const checkParams = async () => {
+				const urlParams = new URLSearchParams(window.location.search);
+				let txid = urlParams.get("txid") || "";
+				let secret = urlParams.get("secret") || "";
+				let localAddress = JSON.parse(localStorage.getItem("keys")).address;
+				let receiver = urlParams.get("address") || localAddress;
+				let unlockingScript;
+				document.getElementById("transactionId").value = txid;
+				document.getElementById("redeemSecret").value = secret;
+				document.getElementById("receiverAddress").value = receiver;
+				if (txid.length > 1 && secret.length > 1 && receiver.length > 1) {
+					// trigger generate unlocking script button
+					document.getElementById("generateUnlockingScript").click();
+					// scroll to unlocking script
+					document.getElementById("unlockingScriptHex").scrollIntoView();
 				}
 				// sanitize url
 				const url = window.location.href;
