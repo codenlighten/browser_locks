@@ -167,6 +167,10 @@
 				<label for="">Add Your Secret Below</label>
 				<!-- input for secret -->
 				<input type="password" id="secret" placeholder="secret" />
+				<!-- repeat secret -->
+				<label for="">Repeat Your Secret</label>
+				<input type="password" id="secretRepeat" placeholder="secret" />
+
 				<!-- input for amount -->
 				<input type="number" id="amount" placeholder="amount" />
 				<!-- button to generate locking script -->
@@ -190,6 +194,7 @@
 				<p id="lockingScriptAsm"></p>
 				<button id="broadcast">Broadcast</button>
 				<p id="txid"></p>
+				<p id="nftylocksUrl"></p>
 			</div>
 			<div class="commonLocks__item">
 				<h1>Redeem a Lock</h1>
@@ -439,6 +444,11 @@
 				const { privateKey, address } = keys;
 				const amount = document.getElementById("amount").value;
 				const secret = document.getElementById("secret").value;
+				const secretRepeat = document.getElementById("secretRepeat").value;
+				if (secret !== secretRepeat) {
+					alert("Secrets do not match");
+					return;
+				}
 				const message = document.getElementById("message").value;
 				const tx = await buildHashLock(
 					address,
@@ -488,6 +498,12 @@
 				document.getElementById(
 					"txid"
 				).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
+				// add url to nftylocks nftylocks.com?txid=txid&secret=secret&address=address
+				const txid = res;
+				const secret = document.getElementById("secret").value;
+				document.getElementById(
+					"nftylocksUrl"
+				).innerHTML = `<a href="https://nftylocks.com?txid=${txid}&secret=${secret}" target="_blank">https://nftylocks.com?txid=${txid}&secret=${secret}</a>`;
 			});
 
 			const broadcastRedeemTxBtn = document.getElementById("broadcastRedeemTx");
