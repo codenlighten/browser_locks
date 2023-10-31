@@ -543,25 +543,11 @@
 					document.getElementById("transactionId").value = txid || "";
 					document.getElementById("redeemSecret").value = secret || "";
 					document.getElementById("receiverAddress").value = receiver || "";
-					let tx;
-					if (txid) {
-						tx = await getTx(txid);
-					}
-					let unlockingScript;
-					if (txid && secret && receiver) {
-						unlockingScript = await buildHashUnlockingStack(
-							tx,
-							secret,
-							receiver
-						);
-						document.getElementById("unlockingScriptHex").innerHTML =
-							unlockingScript.toString("hex");
-						// turn broadcast button green
-						document.getElementById("broadcastRedeemTx").style.backgroundColor =
-							"green";
 
-						document.getElementById("unlockingScriptAsm").innerHTML =
-							unlockingScript.inputs[0].script.toASM();
+					let unlockingScript;
+					if (txid.length > 1 && secret.length > 1 && receiver.length > 1) {
+						// trigger generate unlocking script button
+						document.getElementById("generateUnlockingScript").click();
 					}
 				}
 			};
