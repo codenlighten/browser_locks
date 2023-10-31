@@ -485,9 +485,9 @@
 						document.getElementById(
 							"unlockingScriptAsm"
 						).innerHTML = `<a href="https://whatsonchain.com/tx/${output.spent.txid}" target="_blank">View Transaction</a>`;
-						return;
 					}
 				});
+				if (spent) return;
 				const unlockingScript = await buildHashUnlockingStack(
 					tx,
 					secret,
