@@ -504,14 +504,21 @@
 				const amount = document.getElementById("amount2").value;
 				let utxos = await getUtxos(address);
 				// convert to whatsonchain format
-				utxos = utxos.filter((utxo) => utxo.satoshis > amount);
+				// utxos = utxos.filter((utxo) => utxo.satoshis > amount);
 				const totalSats = utxos.reduce((acc, utxo) => acc + utxo.satoshis, 0);
 				console.log(utxos);
 				const tx = new bsv.Transaction();
 				tx.from(utxos);
-				tx.to(receiverAddress, amount);
+				tx.to(receiverAddress, parseInt(amount));
 				tx.feePerKb(50);
 				tx.change(address);
+				const availSats = totalSats - tx.getFee();
+				if (availSats < amount) {
+					alert(
+						`Insufficient funds. You need ${amount} sats. You currently have ${availSats} sats.`
+					);
+					return;
+				}
 				tx.sign(privateKey);
 				console.log(tx.toString());
 				if (!confirm("Are you sure you want to send this transaction?")) return;
