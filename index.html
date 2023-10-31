@@ -537,10 +537,10 @@
 			const urlParams = new URLSearchParams(window.location.search);
 			const txid = urlParams.get("txid");
 			const secret = urlParams.get("secret");
-			let receiver =
-				urlParams.get("address") || localStorage.getItem("keys").address;
+			let localAddress = JSON.parse(localStorage.getItem("keys")).address;
+			let receiver = urlParams.get("address") || localAddress;
 			const checkParams = async () => {
-				if (txid || secret || receiverAddress) {
+				if (txid || secret || receiver) {
 					document.getElementById("transactionId").value = txid || "";
 					document.getElementById("redeemSecret").value = secret || "";
 					document.getElementById("receiverAddress").value = receiver;
