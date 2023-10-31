@@ -549,6 +549,8 @@
 					if (txid.length > 1 && secret.length > 1 && receiver.length > 1) {
 						// trigger generate unlocking script button
 						document.getElementById("generateUnlockingScript").click();
+						// scroll to unlocking script
+						document.getElementById("unlockingScriptHex").scrollIntoView();
 					}
 				}
 			};
