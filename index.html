@@ -474,9 +474,10 @@
 					unlockingScript.toString("hex");
 				// turn broadcast button green
 				document.getElementById("broadcastRedeemTx").style.backgroundColor =
-					document.getElementById(
-						"unlockingScriptAsm"
-					).innerHTML = `<p>ASM: ${unlockingScript.inputs[0].script.toASM()}</p>`;
+					"green";
+				document.getElementById(
+					"unlockingScriptAsm"
+				).innerHTML = `<p>ASM: ${unlockingScript.inputs[0].script.toASM()}</p>`;
 			});
 
 			const broadcastBtn = document.getElementById("broadcast");
@@ -547,7 +548,7 @@
 						tx = await getTx(txid);
 					}
 					let unlockingScript;
-					if (tx && secret && receiver) {
+					if (txid && secret && receiver) {
 						unlockingScript = await buildHashUnlockingStack(
 							tx,
 							secret,
