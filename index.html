@@ -542,7 +542,8 @@
 				if (txid || secret || receiverAddress) {
 					document.getElementById("transactionId").value = txid || "";
 					document.getElementById("redeemSecret").value = secret || "";
-					document.getElementById("receiverAddress").value = receiver || "";
+					document.getElementById("receiverAddress").value =
+						receiver || localStorage.getItem("keys").address;
 
 					let unlockingScript;
 					if (txid.length > 1 && secret.length > 1 && receiver.length > 1) {
