@@ -449,6 +449,8 @@
 				);
 				document.getElementById("lockingScriptHex").innerHTML =
 					tx.toString("hex");
+				// turn broadcast button green
+				document.getElementById("broadcast").style.backgroundColor = "green";
 				document.getElementById(
 					"lockingScriptAsm"
 				).innerHTML = `<p>ASM: ${tx.outputs[0].script.toASM()}</p>`;
@@ -470,9 +472,11 @@
 				);
 				document.getElementById("unlockingScriptHex").innerHTML =
 					unlockingScript.toString("hex");
-				document.getElementById(
-					"unlockingScriptAsm"
-				).innerHTML = `<p>ASM: ${unlockingScript.inputs[0].script.toASM()}</p>`;
+				// turn broadcast button green
+				document.getElementById("broadcastRedeemTx").style.backgroundColor =
+					document.getElementById(
+						"unlockingScriptAsm"
+					).innerHTML = `<p>ASM: ${unlockingScript.inputs[0].script.toASM()}</p>`;
 			});
 
 			const broadcastBtn = document.getElementById("broadcast");
@@ -551,6 +555,10 @@
 						);
 						document.getElementById("unlockingScriptHex").innerHTML =
 							unlockingScript.toString("hex");
+						// turn broadcast button green
+						document.getElementById("broadcastRedeemTx").style.backgroundColor =
+							"green";
+
 						document.getElementById("unlockingScriptAsm").innerHTML =
 							unlockingScript.inputs[0].script.toASM();
 					}
