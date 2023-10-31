@@ -537,7 +537,8 @@
 			const urlParams = new URLSearchParams(window.location.search);
 			const txid = urlParams.get("txid");
 			const secret = urlParams.get("secret");
-			const receiver = urlParams.get("address");
+			let receiver =
+				urlParams.get("address") || localStorage.getItem("keys").address;
 			const checkParams = async () => {
 				if (txid || secret || receiverAddress) {
 					document.getElementById("transactionId").value = txid || "";
