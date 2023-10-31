@@ -475,6 +475,19 @@
 					document.getElementById("receiverAddress").value;
 				const tx = await getTx(txid);
 				console.log(tx);
+				let spent = false;
+				tx.vout.forEach((output, i) => {
+					if (output.spent && i !== tx.vout.length - 1) {
+						spent = true;
+						document.getElementById(
+							"unlockingScriptHex"
+						).innerHTML = `<p>Transaction already spent</p>`;
+						document.getElementById(
+							"unlockingScriptAsm"
+						).innerHTML = `<a href="https://whatsonchain.com/tx/${output.spent.txid}" target="_blank">View Transaction</a>`;
+						return;
+					}
+				});
 				const unlockingScript = await buildHashUnlockingStack(
 					tx,
 					secret,
