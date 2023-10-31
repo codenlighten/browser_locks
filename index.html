@@ -503,7 +503,7 @@
 				const secret = document.getElementById("secret").value;
 				document.getElementById(
 					"nftylocksUrl"
-				).innerHTML = `<a href="https://nftylocks.com?txid=${txid}&secret=${secret}" target="_blank">https://nftylocks.com?txid=${txid}&secret=${secret}</a>`;
+				).innerHTML = `<p>pShare this with recipient:</p> <a href="https://nftylocks.com?txid=${txid}&secret=${secret}" target="_blank">https://nftylocks.com?txid=${txid}&secret=${secret}</a>`;
 			});
 
 			const broadcastRedeemTxBtn = document.getElementById("broadcastRedeemTx");
