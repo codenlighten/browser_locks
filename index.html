@@ -262,6 +262,7 @@
 			const Buffer = bsv.deps.Buffer;
 			const hash = bsv.crypto.Hash;
 			const sha256 = (buffer) => hash.sha256(buffer);
+			let redeemURL = "";
 			const createQrCode = (text) => {
 				const canvas = document.createElement("canvas");
 				const qr = new QRious({
@@ -542,7 +543,8 @@
 				const secret = document.getElementById("secret").value;
 				document.getElementById(
 					"nftylocksUrl"
-				).innerHTML = `<p>Share this URL with the recipient:</p> <a href="https://nftylocks.com?txid=${txid}&&secret=${secret}" target="_blank"><span id="url">https://nftylocks.com?txid=${txid}&&secret=${secret}</span></a>`;
+				).innerHTML = `<a href="https://nftylocks.com?txid=${txid}&secret=${secret}" target="_blank"><span id="url">https://nftylocks.com?txid=${txid}&secret=${secret}</a>`;
+				redeemURL = `https://nftylocks.com?txid=${txid}&secret=${secret}`;
 				// remove hidden from success
 				// alert(`Transaction broadcasted. Share this URL with the recipient:
 				// https://nftylocks.com?txid=${txid}&secret=${secret}`);
@@ -673,10 +675,8 @@
 
 			const copyToClipboardBtn = document.getElementById("copyToClipboard");
 			copyToClipboardBtn.addEventListener("click", () => {
-				const txid = document.getElementById("txid").innerHTML;
-				const nftylocksUrl = document.getElementById("url").innerHTML;
-				const text = nftylocksUrl;
-				navigator.clipboard.writeText(text);
+				console.log(redeemURL);
+				navigator.clipboard.writeText(redeemURL);
 				alert("Copied to clipboard");
 			});
 		</script>
