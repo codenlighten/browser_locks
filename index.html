@@ -197,11 +197,12 @@
 					<p id="lockingScriptHex"></p>
 					<!-- asm -->
 					<p id="lockingScriptAsm"></p>
-					<button id="broadcast">Broadcast</button>
+					<button id="broadcast">Broadcast Transaction</button>
 				</div>
 				<div class="hidden" id="lockSuccess">
 					<p id="txid"></p>
 					<p id="nftylocksUrl"></p>
+					<button id="copyToClipboard">Copy to Clipboard</button>
 				</div>
 			</div>
 			<div class="commonLocks__item">
@@ -233,7 +234,7 @@
 				<!-- asm -->
 				<p id="unlockingScriptAsm"></p>
 
-				<button id="broadcastRedeemTx">Broadcast</button>
+				<button id="broadcastRedeemTx">Broadcast Transaction</button>
 				<p id="txid2"></p>
 			</div>
 			<div class="commonLocks_item">
@@ -481,10 +482,11 @@
 				);
 				document.getElementById("lockingScriptHex").innerHTML =
 					tx.toString("hex");
+
 				// turn broadcast button green
 				document.getElementById(
 					"lockingScriptAsm"
-				).innerHTML = `<p>ASM: ${tx.outputs[0].script.toASM()}</p>`;
+				).innerHTML = `<p>ASM:</br><span>${tx.outputs[0].script.toASM()}</span></p>`;
 				document.getElementById("broadcast").style.backgroundColor = "green";
 				document.getElementById("broadcast").style.color = "white";
 				document.getElementById("lockingScriptAsm").scrollIntoView();
@@ -540,10 +542,10 @@
 				const secret = document.getElementById("secret").value;
 				document.getElementById(
 					"nftylocksUrl"
-				).innerHTML = `<p>Share this URL with the recipient:</p> <a href="https://nftylocks.com?txid=${txid}&secret=${secret}" target="_blank">https://nftylocks.com?txid=${txid}&secret=${secret}</a>`;
+				).innerHTML = `<p>Share this URL with the recipient:</p> <a href="https://nftylocks.com?txid=${txid}&secret=${secret}" target="_blank"><span id="url">https://nftylocks.com?txid=${txid}&secret=${secret}</span></a>`;
 				// remove hidden from success
-				alert(`Transaction broadcasted. Share this URL with the recipient:
-				https://nftylocks.com?txid=${txid}&secret=${secret}`);
+				// alert(`Transaction broadcasted. Share this URL with the recipient:
+				// https://nftylocks.com?txid=${txid}&secret=${secret}`);
 				document.getElementById("lockSuccess").classList.remove("hidden");
 				document.getElementById("lockingscripts").classList.add("hidden");
 			});
@@ -608,6 +610,9 @@
 					document.getElementById("generateUnlockingScript").click();
 					// scroll to unlocking script
 					document.getElementById("unlockingScriptHex").scrollIntoView();
+					document.getElementById(
+						"broadcastRedeemTx"
+					).innerHTML = `Redeem Your Lock`;
 				}
 				// sanitize url
 				const url = window.location.href;
@@ -664,6 +669,15 @@
 				if (totalFilled) {
 					generateLockingScriptBtn.style.backgroundColor = "green";
 				}
+			});
+
+			const copyToClipboardBtn = document.getElementById("copyToClipboard");
+			copyToClipboardBtn.addEventListener("click", () => {
+				const txid = document.getElementById("txid").innerHTML;
+				const nftylocksUrl = document.getElementById("url").innerHTML;
+				const text = nftylocksUrl;
+				navigator.clipboard.writeText(text);
+				alert("Copied to clipboard");
 			});
 		</script>
 	</body>
