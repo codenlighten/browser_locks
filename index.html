@@ -566,6 +566,11 @@
 				document.getElementById("lockSuccess").classList.remove("hidden");
 				document.getElementById("lockingscripts").classList.add("hidden");
 				document.getElementById("status").scrollIntoView();
+				// make broadcast button inactive
+
+				broadcastBtn.style.backgroundColor = "grey";
+				broadcastBtn.style.color = "black";
+				broadcastBtn.disabled = true;
 				// update balance
 				const keys = JSON.parse(localStorage.getItem("keys"));
 				const { address } = keys;
@@ -590,6 +595,11 @@
 					"txid2"
 				).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
 				document.getElementById("status1").scrollIntoView();
+
+				// disable button
+				broadcastRedeemTxBtn.style.backgroundColor = "grey";
+				broadcastRedeemTxBtn.style.color = "black";
+				broadcastRedeemTxBtn.disabled = true;
 				// update balance
 				const keys = JSON.parse(localStorage.getItem("keys"));
 				const { address } = keys;
