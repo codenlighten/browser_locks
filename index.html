@@ -161,6 +161,9 @@
 				</div>
 				<div class="address__text"></div>
 				<div class="address__balance"></div>
+				<p id="wif"></p>
+				<button id="revealWif">Reveal PrivateKey</button>
+				<button id="exportKeys">Export Keys</button>
 			</div>
 		</div>
 		<div class="container" id="commonLocks">
@@ -258,7 +261,6 @@
 				<p id="txid3"></p>
 			</div>
 			<div class="container" id="copyright2023NFTYLocksTechnology">
-				<button id="exportKeys">Export Keys</button>
 				<p>
 					<a href="https://nftylocks.com" target="_blank"
 						>© 2023 NFTYLocks Technology</a
@@ -759,6 +761,18 @@
 				document.body.appendChild(downloadAnchorNode); // required for firefox
 				downloadAnchorNode.click();
 				downloadAnchorNode.remove();
+			});
+
+			const revealWifBtn = document.getElementById("revealWif");
+			revealWifBtn.addEventListener("click", () => {
+				if (document.getElementById("wif").innerHTML.length > 0) {
+					document.getElementById("wif").innerHTML = "";
+					return;
+				}
+				const keys = JSON.parse(localStorage.getItem("keys"));
+				const { privateKey, publicKey, address } = keys;
+				document.getElementById("wif").innerHTML = `WIF: ${privateKey}`;
+				revealWifBtn.innerHTML = "Hide WIF";
 			});
 		</script>
 	</body>
