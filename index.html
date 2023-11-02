@@ -486,6 +486,7 @@
 					"lockingScriptAsm"
 				).innerHTML = `<p>ASM: ${tx.outputs[0].script.toASM()}</p>`;
 				document.getElementById("broadcast").style.backgroundColor = "green";
+				document.getElementById("broadcast").style.color = "white";
 				document.getElementById("lockingScriptAsm").scrollIntoView();
 			});
 			const generateUnlockingScriptBtn = document.getElementById(
