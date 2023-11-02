@@ -117,7 +117,9 @@
 				margin-bottom: 1rem;
 				cursor: pointer;
 			}
-
+			.hidden {
+				display: none;
+			}
 			@media (min-width: 768px) {
 				.container {
 					padding: 2rem;
@@ -187,14 +189,20 @@
 					id="serviceFee"
 					placeholder="service fee"
 				/>
-				<button id="generateLockingScript">Generate Locking Script</button>
+				<button class="hidden" id="generateLockingScript">
+					Generate Locking Script
+				</button>
 				<!-- locking script -->
-				<p id="lockingScriptHex"></p>
-				<!-- asm -->
-				<p id="lockingScriptAsm"></p>
-				<button id="broadcast">Broadcast</button>
-				<p id="txid"></p>
-				<p id="nftylocksUrl"></p>
+				<div id="lockingscripts" class="hidden">
+					<p id="lockingScriptHex"></p>
+					<!-- asm -->
+					<p id="lockingScriptAsm"></p>
+					<button id="broadcast">Broadcast</button>
+				</div>
+				<div class="hidden" id="lockSuccess">
+					<p id="txid"></p>
+					<p id="nftylocksUrl"></p>
+				</div>
 			</div>
 			<div class="commonLocks__item">
 				<h1>Redeem a Lock</h1>
@@ -302,6 +310,7 @@
 				).innerHTML = `Balance: ${balance} sats`;
 				// add address to receiver address
 				document.getElementById("receiverAddress").value = address;
+				//addeventlisten to address,privatekey,secret,amount, message and turn generate locking script button green
 			});
 
 			const getUtxos = async (address) => {
@@ -357,6 +366,14 @@
 				console.log(hash.toString("hex"));
 				const secretHash = sha256(hash).toString("hex");
 				console.log(secretHash.toString("hex"));
+
+				// if prefer to use output with safe data for message
+				// const safeData = Buffer.from(message);
+				// tx.addOutput = new bsv.Transaction.Output({
+				// 	script: bsv.Script.buildSafeDataOut(safeData),
+				// 	satoshis: 0,
+				// });
+
 				const lock = new bsv.Script.empty()
 					.add(bsv.Opcode.OP_SHA256)
 					.add(Buffer.from(secretHash, "hex"))
@@ -384,7 +401,12 @@
 					return;
 				}
 				tx.sign(privateKey);
+				//remove hidden from locking script
+				document.getElementById("lockingscripts").classList.remove("hidden");
 				// console.log(tx.outputs[0].script.toHex());
+				document
+					.getElementById("generateLockingScript")
+					.classList.add("hidden");
 				console.log("Tx", tx.toString());
 				// console log script in asm
 				// console.log(tx.outputs[0].script.toASM());
@@ -460,10 +482,11 @@
 				document.getElementById("lockingScriptHex").innerHTML =
 					tx.toString("hex");
 				// turn broadcast button green
-				document.getElementById("broadcast").style.backgroundColor = "green";
 				document.getElementById(
 					"lockingScriptAsm"
 				).innerHTML = `<p>ASM: ${tx.outputs[0].script.toASM()}</p>`;
+				document.getElementById("broadcast").style.backgroundColor = "green";
+				document.getElementById("lockingScriptAsm").scrollIntoView();
 			});
 			const generateUnlockingScriptBtn = document.getElementById(
 				"generateUnlockingScript"
@@ -517,6 +540,11 @@
 				document.getElementById(
 					"nftylocksUrl"
 				).innerHTML = `<p>Share this URL with the recipient:</p> <a href="https://nftylocks.com?txid=${txid}&secret=${secret}" target="_blank">https://nftylocks.com?txid=${txid}&secret=${secret}</a>`;
+				// remove hidden from success
+				alert(`Transaction broadcasted. Share this URL with the recipient:
+				https://nftylocks.com?txid=${txid}&secret=${secret}`);
+				document.getElementById("lockSuccess").classList.remove("hidden");
+				document.getElementById("lockingscripts").classList.add("hidden");
 			});
 
 			const broadcastRedeemTxBtn = document.getElementById("broadcastRedeemTx");
@@ -586,6 +614,56 @@
 				window.history.pushState({}, null, newUrl);
 			};
 			checkParams();
+			const secretValue = document.getElementById("secret");
+			const secretRepeatValue = document.getElementById("secretRepeat");
+			const amountValue = document.getElementById("amount");
+			const messageValue = document.getElementById("message");
+			const serviceFeeValue = document.getElementById("serviceFee");
+			let totalFilled = false;
+			const checkFilled = () => {
+				if (
+					secretValue.value.length > 1 &&
+					secretRepeatValue.value.length > 1 &&
+					amountValue.value.length > 1 &&
+					messageValue.value.length > 1 &&
+					serviceFeeValue.value.length > 1
+				) {
+					totalFilled = true;
+					document
+						.getElementById("generateLockingScript")
+						.classList.remove("hidden");
+				}
+			};
+			secretValue.addEventListener("input", () => {
+				checkFilled();
+				if (totalFilled) {
+					generateLockingScriptBtn.style.backgroundColor = "green";
+				}
+			});
+			secretRepeatValue.addEventListener("input", () => {
+				checkFilled();
+				if (totalFilled) {
+					generateLockingScriptBtn.style.backgroundColor = "green";
+				}
+			});
+			amountValue.addEventListener("input", () => {
+				checkFilled();
+				if (totalFilled) {
+					generateLockingScriptBtn.style.backgroundColor = "green";
+				}
+			});
+			messageValue.addEventListener("input", () => {
+				checkFilled();
+				if (totalFilled) {
+					generateLockingScriptBtn.style.backgroundColor = "green";
+				}
+			});
+			serviceFeeValue.addEventListener("input", () => {
+				checkFilled();
+				if (totalFilled) {
+					generateLockingScriptBtn.style.backgroundColor = "green";
+				}
+			});
 		</script>
 	</body>
 </html>
