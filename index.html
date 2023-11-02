@@ -241,6 +241,7 @@
 			</div>
 			<div class="commonLocks_item">
 				<h1>Send BSV</h1>
+				<p class="address__balance" id="currentBalance"></p>
 				<label for="">Recipient's Address</label>
 				<input
 					type="text"
@@ -560,6 +561,13 @@
 				document.getElementById("lockSuccess").classList.remove("hidden");
 				document.getElementById("lockingscripts").classList.add("hidden");
 				document.getElementById("status").scrollIntoView();
+				// update balance
+				const keys = JSON.parse(localStorage.getItem("keys"));
+				const { address } = keys;
+				const balance = await getBalance(address);
+				document.querySelector(
+					".address__balance"
+				).innerHTML = `Balance: ${balance} sats`;
 			});
 
 			const broadcastRedeemTxBtn = document.getElementById("broadcastRedeemTx");
@@ -577,6 +585,13 @@
 					"txid2"
 				).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
 				document.getElementById("status1").scrollIntoView();
+				// update balance
+				const keys = JSON.parse(localStorage.getItem("keys"));
+				const { address } = keys;
+				const balance = await getBalance(address);
+				document.querySelector(
+					".address__balance"
+				).innerHTML = `Balance: ${balance} sats`;
 			});
 
 			const sendBsvBtn = document.getElementById("sendBsv");
@@ -611,6 +626,12 @@
 				document.getElementById(
 					"txid3"
 				).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
+				document.getElementById("txid3").scrollIntoView();
+				// update balance
+				const balance = await getBalance(address);
+				document.querySelector(
+					".address__balance"
+				).innerHTML = `Balance: ${balance} sats`;
 			});
 
 			// check url params for txid ,  secret, and receiver address
