@@ -200,6 +200,7 @@
 					<button id="broadcast">Broadcast Transaction</button>
 				</div>
 				<div class="hidden" id="lockSuccess">
+					<p id="status"></p>
 					<p id="txid"></p>
 					<p id="nftylocksUrl"></p>
 					<button id="copyToClipboard">Copy to Clipboard</button>
@@ -235,6 +236,7 @@
 				<p id="unlockingScriptAsm"></p>
 
 				<button id="broadcastRedeemTx">Broadcast Transaction</button>
+				<p id="status1"></p>
 				<p id="txid2"></p>
 			</div>
 			<div class="commonLocks_item">
@@ -535,6 +537,13 @@
 				const tx = document.getElementById("lockingScriptHex").innerHTML;
 				console.log(tx);
 				const res = await broadcast(tx);
+				if (res.error) {
+					alert(res.error);
+					return;
+				}
+				document.getElementById(
+					"status"
+				).innerHTML = `Transaction Successfully Broadcasted`;
 				document.getElementById(
 					"txid"
 				).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
@@ -550,16 +559,24 @@
 				// https://nftylocks.com?txid=${txid}&secret=${secret}`);
 				document.getElementById("lockSuccess").classList.remove("hidden");
 				document.getElementById("lockingscripts").classList.add("hidden");
-				document.getElementById("nftylocksUrl").scrollIntoView();
+				document.getElementById("status").scrollIntoView();
 			});
 
 			const broadcastRedeemTxBtn = document.getElementById("broadcastRedeemTx");
 			broadcastRedeemTxBtn.addEventListener("click", async () => {
 				const tx = document.getElementById("unlockingScriptHex").innerHTML;
 				const res = await broadcast(tx);
+				if (res.error) {
+					alert(res.error);
+					return;
+				}
+				document.getElementById(
+					"status1"
+				).innerHTML = `Transaction Successfully Broadcasted`;
 				document.getElementById(
 					"txid2"
 				).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
+				document.getElementById("status1").scrollIntoView();
 			});
 
 			const sendBsvBtn = document.getElementById("sendBsv");
