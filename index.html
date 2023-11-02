@@ -255,6 +255,7 @@
 				<p id="txid3"></p>
 			</div>
 			<div class="container" id="copyright2023NFTYLocksTechnology">
+				<button id="exportKeys">Export Keys</button>
 				<p>
 					<a href="https://nftylocks.com" target="_blank"
 						>© 2023 NFTYLocks Technology</a
@@ -725,6 +726,26 @@
 				console.log(redeemURL);
 				navigator.clipboard.writeText(redeemURL);
 				alert("Copied to clipboard");
+			});
+			const exportKeysBtn = document.getElementById("exportKeys");
+			exportKeysBtn.addEventListener("click", () => {
+				const keys = JSON.parse(localStorage.getItem("keys"));
+				const { privateKey, publicKey, address } = keys;
+				const data = {
+					privateKey,
+					wif: privateKey,
+					publicKey,
+					address,
+				};
+				const dataStr =
+					"data:text/json;charset=utf-8," +
+					encodeURIComponent(JSON.stringify(data));
+				const downloadAnchorNode = document.createElement("a");
+				downloadAnchorNode.setAttribute("href", dataStr);
+				downloadAnchorNode.setAttribute("download", "keys.json");
+				document.body.appendChild(downloadAnchorNode); // required for firefox
+				downloadAnchorNode.click();
+				downloadAnchorNode.remove();
 			});
 		</script>
 	</body>
