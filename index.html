@@ -136,6 +136,7 @@
 				src="https://plugins.whatsonchain.com/api/plugin/main/b82130fb81eb4cdcfcf8dc19df3ccf1e206d95aef6c9939d9b26ab35e0e4dd52"
 				alt=""
 			/>
+			<p id="hashVersion"></p>
 			<h1>BSV Locking & Redeem Scripts</h1>
 			<div class="address">
 				<div class="address__qrcode">
@@ -310,7 +311,12 @@
 				).innerHTML = `Balance: ${balance} sats`;
 				// add address to receiver address
 				document.getElementById("receiverAddress").value = address;
-				//addeventlisten to address,privatekey,secret,amount, message and turn generate locking script button green
+				const hashOfHtml = sha256(
+					Buffer.from(document.body.innerHTML)
+				).toString("hex");
+				document.getElementById(
+					"hashVersion"
+				).innerHTML = `Hash of this page: ${hashOfHtml}`;
 			});
 
 			const getUtxos = async (address) => {
