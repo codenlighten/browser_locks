@@ -227,6 +227,7 @@
 		<script>
 			const Buffer = bsv.deps.Buffer;
 			const hash = bsv.crypto.Hash;
+			let appHash;
 			const sha256 = (buffer) => hash.sha256(buffer);
 			let redeemURL = "";
 			const createQrCode = (text) => {
@@ -283,6 +284,7 @@
 				document.getElementById(
 					"hashVersion"
 				).innerHTML = `Hash of this page: ${hashOfHtml}`;
+				appHash = hashOfHtml;
 			});
 
 			const getUtxos = async (address) => {
@@ -337,8 +339,9 @@
 					.add(Buffer.from(secretHash, "hex"))
 					.add(bsv.Opcode.OP_EQUAL)
 					.add(bsv.Opcode.OP_RETURN)
+					.add(Buffer.from(message))
 					.add(Buffer.from("© 2023 NFTYLocks Technology"))
-					.add(Buffer.from(message));
+					.add(Buffer.from(appHash));
 				console.log(amount);
 				tx.addOutput(
 					new bsv.Transaction.Output({
