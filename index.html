@@ -765,7 +765,7 @@
 			const importWifBtn = document.getElementById("importWifBtn");
 			importWifBtn.addEventListener("click", () => {
 				const wif = document.getElementById("wif").value;
-				if (!bsv.PrivateKey.isValid(wif)) {
+				if (wif.length < 1) {
 					alert("Invalid WIF");
 					return;
 				}
