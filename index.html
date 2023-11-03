@@ -546,10 +546,17 @@
 				// add url to nftylocks nftylocks.com?txid=txid&secret=secret&address=address
 				const txid = res;
 				const secret = document.getElementById("secret").value;
+				let currentUrl = window.location.href;
+				//add params to url
+				currentUrl += `?txid=${txid}&secret=${secret}`;
+				// document.getElementById(
+				// 	"nftylocksUrl"
+				// ).innerHTML = `<a href="https://nftylocks.com?txid=${txid}&secret=${secret}" target="_blank"><span id="url">https://nftylocks.com?txid=${txid}&secret=${secret}</a>`;
+				// redeemURL = `https://nftylocks.com?txid=${txid}&secret=${secret}`;
 				document.getElementById(
 					"nftylocksUrl"
-				).innerHTML = `<a href="https://nftylocks.com?txid=${txid}&secret=${secret}" target="_blank"><span id="url">https://nftylocks.com?txid=${txid}&secret=${secret}</a>`;
-				redeemURL = `https://nftylocks.com?txid=${txid}&secret=${secret}`;
+				).innerHTML = `<a href="${currentUrl}" target="_blank"><span id="url">${currentUrl}</a>`;
+				redeemURL = currentUrl;
 				// remove hidden from success
 				// alert(`Transaction broadcasted. Share this URL with the recipient:
 				// https://nftylocks.com?txid=${txid}&secret=${secret}`);
@@ -671,6 +678,7 @@
 						"broadcastRedeemTx"
 					).innerHTML = `Redeem Your Lock`;
 				}
+				document.getElementById("broadcastRedeemTx").style.color = "white";
 				// sanitize url
 				const url = window.location.href;
 				const newUrl = url.split("?")[0];
