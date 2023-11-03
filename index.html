@@ -149,7 +149,7 @@
 			</div>
 			<div class="container" id="importWif">
 				<h2>Import WIF</h2>
-				<input type="text" id="wif" placeholder="wif" />
+				<input type="text" id="importWifInfo" placeholder="wif" />
 				<button id="importWifBtn">Import WIF</button>
 			</div>
 		</div>
@@ -288,6 +288,7 @@
 					privateKey: privateKey.toString(),
 					publicKey: publicKey.toString(),
 					address: address.toString(),
+					wif: privateKey.toWIF(),
 				};
 			};
 			// onload check if localstorage has keys
@@ -763,8 +764,9 @@
 			});
 
 			const importWifBtn = document.getElementById("importWifBtn");
+			const importWifInfo = document.getElementById("importWifInfo");
 			importWifBtn.addEventListener("click", () => {
-				const wif = document.getElementById("wif").value;
+				const wif = importWifInfo.value;
 				if (wif.length < 1) {
 					alert("Invalid WIF");
 					return;
