@@ -147,6 +147,11 @@
 				<button id="revealWif">Reveal PrivateKey</button>
 				<button id="exportKeys">Export Keys</button>
 			</div>
+			<div class="container" id="importWif">
+				<h2>Import WIF</h2>
+				<input type="text" id="wif" placeholder="wif" />
+				<button id="importWifBtn">Import WIF</button>
+			</div>
 		</div>
 		<div class="container" id="commonLocks">
 			<h2>Secret Password Locking Scripts</h2>
@@ -755,6 +760,31 @@
 				const { privateKey, publicKey, address } = keys;
 				document.getElementById("wif").innerHTML = `WIF: ${privateKey}`;
 				revealWifBtn.innerHTML = "Hide WIF";
+			});
+
+			const importWifBtn = document.getElementById("importWifBtn");
+			importWifBtn.addEventListener("click", () => {
+				const wif = document.getElementById("wif").value;
+				if (!bsv.PrivateKey.isValid(wif)) {
+					alert("Invalid WIF");
+					return;
+				}
+				if (localStorage.getItem("keys")) {
+					if (
+						!confirm("Are you sure you want to overwrite your existing keys?")
+					)
+						return;
+				}
+				const privateKey = bsv.PrivateKey.fromWIF(wif);
+				const publicKey = bsv.PublicKey.fromPrivateKey(privateKey);
+				const address = bsv.Address.fromPublicKey(publicKey);
+				const keys = {
+					privateKey: privateKey.toString(),
+					publicKey: publicKey.toString(),
+					address: address.toString(),
+				};
+				localStorage.setItem("keys", JSON.stringify(keys));
+				window.location.reload();
 			});
 		</script>
 	</body>
