@@ -494,7 +494,7 @@
 				console.log(tx);
 				// get message from tx
 				const message = tx.vout[0].scriptPubKey.asm.split(" ")[1];
-				console.log(message);
+				console.log(message, message.toString());
 				const unlockingScript = await buildHashUnlockingStack(
 					tx,
 					secret,
