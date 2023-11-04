@@ -593,7 +593,6 @@
 								".address__balance"
 							).innerHTML = `Balance: ${balance} sats`;
 						});
-			<<<<<<< HEAD
 
 						// check url params for txid ,  secret, and receiver address
 						// https://api.whatsonchain.com/v1/bsv/main/tx/{txid}/{output}/spent
@@ -604,8 +603,6 @@
 							console.log(json);
 							return json;
 						};
-			=======
-			>>>>>>> f8fbb4fab1a9c178af97ead87550d5e7c5f275c1
 						const checkParams = async () => {
 							const urlParams = new URLSearchParams(window.location.search);
 							let txid = urlParams.get("txid") || "";
