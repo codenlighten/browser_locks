@@ -269,14 +269,13 @@
 					const encrypted = encrypt(message, secret);
 					console.log(encrypted);
 					document.getElementById("message").value = encrypted;
+				} else {
+					const message = document.getElementById("message").value;
+					const secret = document.getElementById("secret").value;
+					const decrypted = decrypt(message, secret);
+					console.log(decrypted);
+					document.getElementById("message").value = decrypted;
 				}
-				// else {
-				// 	const message = document.getElementById("message").value;
-				// 	const secret = document.getElementById("secret").value;
-				// 	const decrypted = decrypt(message, secret);
-				// 	console.log(decrypted);
-				// 	document.getElementById("message").value = decrypted;
-				// }
 			});
 
 			const createQrCode = (text) => {
