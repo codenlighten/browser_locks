@@ -423,6 +423,13 @@
 					);
 					return;
 				}
+				alert(
+					`The Details of your Tx is Amount Sending: ${amount} sats, Application Service Fee: ${parseInt(
+						serviceFee
+					)}, Miner Cost: ${tx.getFee()}. Total Cost: ${
+						parseInt(serviceFee) + tx.getFee() + parseInt(amount)
+					} sats.`
+				);
 				tx.sign(privateKey);
 				document.getElementById("lockingscripts").classList.remove("hidden");
 				document
