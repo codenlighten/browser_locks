@@ -215,8 +215,8 @@
 				<p id="latestOnchainVersion">
 					Latest Onchain Version:
 					<a
-						href="https://plugins.whatsonchain.com/api/plugin/main/54665c58c18d7a66e7a51c3c44a77fdb67a6a5c5ff7f50a688a50645dcc9414a"
-						>https://plugins.whatsonchain.com/api/plugin/main/54665c58c18d7a66e7a51c3c44a77fdb67a6a5c5ff7f50a688a50645dcc9414a</a
+						href="https://plugins.whatsonchain.com/api/plugin/main/3e4181231b505036b9aef630faba38096b9f86e4e378d080f842a8742d8b20e6"
+						>https://plugins.whatsonchain.com/api/plugin/main/3e4181231b505036b9aef630faba38096b9f86e4e378d080f842a8742d8b20e6</a
 					>
 				</p>
 				<p id="hashVersion"></p>
@@ -454,10 +454,6 @@
 					satoshis: sats,
 				});
 				const estFee = tx._estimateFee();
-				if (sats > 1000) {
-					const appServiceAddress = "15PZaZYD9u6nhD8eGVY8pBKdumaDnuynCy";
-					tx.to(appServiceAddress, 50);
-				}
 				tx.inputs[0].setScript(unlockingScript);
 				console.log(tx.uncheckedSerialize());
 				return tx;
