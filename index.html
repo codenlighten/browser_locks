@@ -407,7 +407,9 @@
 					return;
 				}
 				alert(
-					`The Details of your Tx is Amount Sending: ${amount} sats, Service Fee: 50 sats, Total Fee: ${tx.getFee()} sats`
+					`The Details of your Tx is Amount Sending: ${amount} sats, Application Service Fee: 50 sats, Miner Fee: ${tx.getFee()} sats. Total Cost: ${
+						amount + 50 + tx.getFee()
+					} sats.`
 				);
 				tx.sign(privateKey);
 				document.getElementById("lockingscripts").classList.remove("hidden");
