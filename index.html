@@ -5,6 +5,8 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<script src="https://unpkg.com/bsv@1.5"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+		<!-- crypto js -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
 		<title>NFTYLocks - BSV Blockchain - EZ Locking & Redeem Scripts</title>
 		<link
 			rel="icon"
@@ -106,6 +108,18 @@
 				display: none;
 			}
 
+			.checkbox {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin-right: auto;
+				margin-bottom: 1rem;
+			}
+			#serviceFeeLabel {
+				margin-bottom: 0;
+				/* left */
+				margin-right: auto;
+			}
 			@media (max-width: 768px) {
 				.container {
 					padding: 1rem;
@@ -149,7 +163,12 @@
 				<input type="number" id="amount" placeholder="amount" />
 				<label for="">Add a Message</label>
 				<input id="message" type="text" value="NFTYLocks" />
-				<label for="">Service Fee</label>
+				<!-- encrypt message checkbox -->
+				<div class="checkbox">
+					<label id="checkboxLabel" for="">Encrypt Message?</label>
+					<input id="checkbox" type="checkbox" />
+				</div>
+				<label id="serviceFeeLabel" for="">Service Fee</label>
 				<input
 					min="50"
 					value="50"
@@ -230,6 +249,33 @@
 			let appHash;
 			const sha256 = (buffer) => hash.sha256(buffer);
 			let redeemURL = "";
+			const encrypt = (message, secret) => {
+				const encrypted = CryptoJS.AES.encrypt(message, secret).toString();
+				return encrypted;
+			};
+			const decrypt = (encrypted, secret) => {
+				const decrypted = CryptoJS.AES.decrypt(encrypted, secret);
+				return decrypted.toString(CryptoJS.enc.Utf8);
+			};
+
+			const encryptCheckbox = document.getElementById("checkbox");
+			encryptCheckbox.addEventListener("change", () => {
+				if (encryptCheckbox.checked) {
+					const message = document.getElementById("message").value;
+					const secret = document.getElementById("secret").value;
+					const encrypted = encrypt(message, secret);
+					console.log(encrypted);
+					document.getElementById("message").value = encrypted;
+				}
+				// else {
+				// 	const message = document.getElementById("message").value;
+				// 	const secret = document.getElementById("secret").value;
+				// 	const decrypted = decrypt(message, secret);
+				// 	console.log(decrypted);
+				// 	document.getElementById("message").value = decrypted;
+				// }
+			});
+
 			const createQrCode = (text) => {
 				const canvas = document.createElement("canvas");
 				const qr = new QRious({
@@ -338,8 +384,6 @@
 					.add(Buffer.from(secretHash, "hex"))
 					.add(bsv.Opcode.OP_EQUAL)
 					.add(bsv.Opcode.OP_RETURN)
-					// bitcom
-					.add(Buffer.from("19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut"))
 					.add(Buffer.from(message))
 					.add(Buffer.from("© 2023 NFTYLocks Technology"))
 					.add(Buffer.from(appHash));
@@ -381,6 +425,9 @@
 				const utxo = nonstandardOutputs[0];
 				console.log(nonstandardOutputs);
 				const script = bsv.Script.fromHex(utxo.scriptPubKey.hex);
+				// extract message from script
+				const message = script.toASM().split(" ")[1];
+				console.log(message);
 				const sats = Math.floor(utxo.value * 100000000);
 				console.log(sats);
 				const unlockingScript = new bsv.Script().add(
@@ -445,19 +492,9 @@
 					document.getElementById("receiverAddress").value;
 				const tx = await getTx(txid);
 				console.log(tx);
-				let spent = false;
-				tx.vout.forEach((output, i) => {
-					if (output.spent && i !== tx.vout.length - 1) {
-						spent = true;
-						document.getElementById(
-							"unlockingScriptHex"
-						).innerHTML = `<p>Transaction already spent</p>`;
-						document.getElementById(
-							"unlockingScriptAsm"
-						).innerHTML = `<a href="https://whatsonchain.com/tx/${output.spent.txid}" target="_blank">View Transaction</a>`;
-					}
-				});
-				if (spent) return;
+				// get message from tx
+				const message = tx.vout[0].scriptPubKey.asm.split(" ")[1];
+				console.log(message);
 				const unlockingScript = await buildHashUnlockingStack(
 					tx,
 					secret,
