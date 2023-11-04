@@ -266,6 +266,11 @@
 				if (encryptCheckbox.checked) {
 					const message = document.getElementById("message").value;
 					const secret = document.getElementById("secret").value;
+					const secretRepeat = document.getElementById("secretRepeat").value;
+					if (secret !== secretRepeat) {
+						alert("Secrets do not match");
+						return;
+					}
 					const encrypted = encrypt(message, secret);
 					console.log(encrypted);
 					document.getElementById("message").value = encrypted;
