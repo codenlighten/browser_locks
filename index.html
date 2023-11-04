@@ -703,7 +703,7 @@
 				const keys = JSON.parse(localStorage.getItem("keys"));
 				const { privateKey, publicKey, address } = keys;
 				document.getElementById("wif").innerHTML = `WIF: ${privateKey}`;
-				revealWifBtn.innerHTML = "Hide WIF";
+				revealWifBtn.innerHTML = "Hide Private Key";
 			});
 
 			const importWifBtn = document.getElementById("importWifBtn");
