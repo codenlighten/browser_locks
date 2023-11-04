@@ -698,6 +698,7 @@
 			revealWifBtn.addEventListener("click", () => {
 				if (document.getElementById("wif").innerHTML.length > 0) {
 					document.getElementById("wif").innerHTML = "";
+					revealWifBtn.innerHTML = "Reveal Private Key";
 					return;
 				}
 				const keys = JSON.parse(localStorage.getItem("keys"));
