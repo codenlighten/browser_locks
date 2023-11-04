@@ -271,8 +271,7 @@
 					method: "POST",
 					body: JSON.stringify({ txhex: tx }),
 				});
-				const json = await res.json();
-				return json;
+				return res;
 			};
 
 			const generateKeys = () => {
@@ -526,9 +525,12 @@
 			broadcastBtn.addEventListener("click", async () => {
 				const tx = document.getElementById("lockingScriptHex").innerHTML;
 				console.log(tx);
-				const res = await broadcast(tx);
-				if (res.error) {
-					alert(res.error);
+				const response = await broadcast(tx);
+				const res = await response.json();
+
+				console.log(response);
+				if (!response.ok) {
+					alert(res);
 					return;
 				}
 				document.getElementById(
@@ -567,9 +569,15 @@
 			const broadcastRedeemTxBtn = document.getElementById("broadcastRedeemTx");
 			broadcastRedeemTxBtn.addEventListener("click", async () => {
 				const tx = document.getElementById("unlockingScriptHex").innerHTML;
-				const res = await broadcast(tx);
-				if (res.error) {
-					alert(res.error);
+				const response = await broadcast(tx);
+				const res = await response.json();
+
+				console.log(response);
+				if (!response.ok) {
+					alert(res);
+					broadcastRedeemTxBtn.style.backgroundColor = "grey";
+					broadcastRedeemTxBtn.style.color = "black";
+					broadcastRedeemTxBtn.disabled = true;
 					return;
 				}
 				document.getElementById(
@@ -621,9 +629,12 @@
 				console.log(tx.toString());
 				if (!confirm("Are you sure you want to send this transaction?")) return;
 
-				const res = await broadcast(tx.toString());
-				if (res.error) {
-					alert(res.error);
+				const response = await broadcast(tx.toString());
+				const res = await response.json();
+
+				console.log(response);
+				if (!response.ok) {
+					alert(res);
 					return;
 				}
 				document.getElementById(
@@ -641,7 +652,14 @@
 			});
 
 			// check url params for txid ,  secret, and receiver address
-
+			// https://api.whatsonchain.com/v1/bsv/main/tx/{txid}/{output}/spent
+			const testSpent = async (txid, output) => {
+				const url = `https://api.whatsonchain.com/v1/bsv/main/tx/${txid}/${output}/spent`;
+				const res = await fetch(url);
+				const json = await res.json();
+				console.log(json);
+				return json;
+			};
 			const checkParams = async () => {
 				const urlParams = new URLSearchParams(window.location.search);
 				let txid = urlParams.get("txid") || "";
@@ -654,6 +672,12 @@
 				document.getElementById("receiverAddress").value = receiver;
 				if (txid.length > 1 && secret.length > 1 && receiver.length > 1) {
 					// trigger generate unlocking script button
+					//test if transaction is spent
+					// const spent = await testSpent(txid, 0);
+					// if (spent) {
+					// 	alert("Transaction already spent");
+					// 	return;
+					// }
 					document.getElementById("generateUnlockingScript").click();
 					// scroll to unlocking script
 					document.getElementById("unlockingScriptHex").scrollIntoView();
