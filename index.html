@@ -218,6 +218,7 @@
 				<button id="broadcastRedeemTx">Broadcast Transaction</button>
 				<p id="status1"></p>
 				<p id="txid2"></p>
+				<p id="yourMessage"></p>
 			</div>
 			<div class="commonLocks_item">
 				<h1>Send BSV</h1>
@@ -247,6 +248,8 @@
 			const Buffer = bsv.deps.Buffer;
 			const hash = bsv.crypto.Hash;
 			let appHash;
+			let myMessage;
+			let myEncryptionCheck;
 			const sha256 = (buffer) => hash.sha256(buffer);
 			let redeemURL = "";
 			const encrypt = (message, secret) => {
@@ -379,11 +382,19 @@
 				console.log(hash.toString("hex"));
 				const secretHash = sha256(hash).toString("hex");
 				console.log(secretHash.toString("hex"));
+				let encryptionCheck = document.getElementById("checkbox").checked;
+				if (encryptionCheck) {
+					encryptionCheck = 1;
+				} else {
+					encryptionCheck = 0;
+				}
 				const lock = new bsv.Script.empty()
 					.add(bsv.Opcode.OP_SHA256)
 					.add(Buffer.from(secretHash, "hex"))
 					.add(bsv.Opcode.OP_EQUAL)
 					.add(bsv.Opcode.OP_RETURN)
+					//true or false for encrypting message
+					.add(Buffer.from(encryptionCheck.toString()))
 					.add(Buffer.from(message))
 					.add(Buffer.from("© 2023 NFTYLocks Technology"))
 					.add(Buffer.from(appHash));
@@ -426,8 +437,13 @@
 				console.log(nonstandardOutputs);
 				const script = bsv.Script.fromHex(utxo.scriptPubKey.hex);
 				// extract message from script
-				const message = script.toASM().split(" ")[1];
-				console.log(message);
+				// num of chunks
+				const numChunks = script.chunks.length;
+				console.log(numChunks);
+				myEncryptionCheck = Buffer.from(script.chunks[4].buf).toString();
+				// message is 5th chunk
+				myMessage = Buffer.from(script.chunks[5].buf).toString();
+				console.log(myEncryptionCheck, myMessage);
 				const sats = Math.floor(utxo.value * 100000000);
 				console.log(sats);
 				const unlockingScript = new bsv.Script().add(
@@ -576,6 +592,22 @@
 					"txid2"
 				).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
 				document.getElementById("status1").scrollIntoView();
+				// check myencryptioncheck and decrypt message if needed
+				if (myEncryptionCheck === "1") {
+					const decrypted = decrypt(
+						myMessage,
+						document.getElementById("redeemSecret").value
+					);
+					document.getElementById(
+						"yourMessage"
+					).innerHTML = `Your Message: ${decrypted}`;
+				} else {
+					document.getElementById(
+						"yourMessage"
+					).innerHTML = `Your Message: ${myMessage}`;
+				}
+				broadcastRedeemTxBtn.innerHTML = `Lock Redeemed`;
+
 				broadcastRedeemTxBtn.style.backgroundColor = "grey";
 				broadcastRedeemTxBtn.style.color = "black";
 				broadcastRedeemTxBtn.disabled = true;
