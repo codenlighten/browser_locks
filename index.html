@@ -115,11 +115,7 @@
 				margin-right: auto;
 				margin-bottom: 1rem;
 			}
-			#serviceFeeLabel {
-				margin-bottom: 0;
-				/* left */
-				margin-right: auto;
-			}
+
 			@media (max-width: 768px) {
 				.container {
 					padding: 1rem;
@@ -219,8 +215,8 @@
 				<p id="latestOnchainVersion">
 					Latest Onchain Version:
 					<a
-						href="https://plugins.whatsonchain.com/api/plugin/main/06884c0d3fcd0e4f03d084d073eb8a39d0c081fd3c9ae9e4fdb56f2662835fb6"
-						>https://plugins.whatsonchain.com/api/plugin/main/06884c0d3fcd0e4f03d084d073eb8a39d0c081fd3c9ae9e4fdb56f2662835fb6</a
+						href="https://plugins.whatsonchain.com/api/plugin/main/611a7f48642c0087dc4ebdf43ffb11e2b6a2e1fd35cd7814bcaa6941d06e0a31"
+						>https://plugins.whatsonchain.com/api/plugin/main/611a7f48642c0087dc4ebdf43ffb11e2b6a2e1fd35cd7814bcaa6941d06e0a31</a
 					>
 				</p>
 				<p id="hashVersion"></p>
@@ -369,7 +365,6 @@
 			) => {
 				let utxos = await getUtxos(address);
 				const totalSats = utxos.reduce((acc, utxo) => acc + utxo.satoshis, 0);
-				// const serviceFee = document.getElementById("serviceFee").value || 50;
 				console.log(utxos);
 				const tx = new bsv.Transaction();
 				tx.from(utxos);
@@ -691,7 +686,6 @@
 			const secretRepeatValue = document.getElementById("secretRepeat");
 			const amountValue = document.getElementById("amount");
 			const messageValue = document.getElementById("message");
-			const serviceFeeValue = document.getElementById("serviceFee");
 			let totalFilled = false;
 			const checkFilled = () => {
 				if (
@@ -699,7 +693,6 @@
 					secretRepeatValue.value.length > 1 &&
 					amountValue.value.length > 1 &&
 					messageValue.value.length > 1 &&
-					serviceFeeValue.value.length > 1
 				) {
 					totalFilled = true;
 					document
@@ -731,12 +724,7 @@
 					generateLockingScriptBtn.style.backgroundColor = "green";
 				}
 			});
-			serviceFeeValue.addEventListener("input", () => {
-				checkFilled();
-				if (totalFilled) {
-					generateLockingScriptBtn.style.backgroundColor = "green";
-				}
-			});
+
 
 			const copyToClipboardBtn = document.getElementById("copyToClipboard");
 			copyToClipboardBtn.addEventListener("click", () => {
