@@ -3,17 +3,13 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<!-- bsv cdn unpkg -->
 		<script src="https://unpkg.com/bsv@1.5"></script>
-		<!-- qrious cdn -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-		<title>BSV Locking & Redeem Scripts</title>
-		<!-- favicon -->
+		<title>NFTYLocks - BSV Blockchain - EZ Locking & Redeem Scripts</title>
 		<link
 			rel="icon"
 			href="https://plugins.whatsonchain.com/api/plugin/main/45d98d1321fa2b3e8125a32a85c1df9339eb62233cdc2f1985ea6826eeb6f48a"
 		/>
-		<!-- twitter card -->
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:site" content="@_codenlighten" />
 		<meta name="twitter:creator" content="@_codenlighten" />
@@ -26,13 +22,10 @@
 			name="twitter:image"
 			content="https://plugins.whatsonchain.com/api/plugin/main/45d98d1321fa2b3e8125a32a85c1df9339eb62233cdc2f1985ea6826eeb6f48a"
 		/>
-
-		<!-- montserrat -->
 		<link
 			href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
 			rel="stylesheet"
 		/>
-		<!-- style -->
 		<style>
 			* {
 				box-sizing: border-box;
@@ -113,12 +106,6 @@
 				display: none;
 			}
 
-			@media (min-width: 768px) {
-				.container {
-					padding: 2rem;
-				}
-			}
-			/* max */
 			@media (max-width: 768px) {
 				.container {
 					padding: 1rem;
@@ -138,33 +125,28 @@
 			/>
 			<h1>BSV Locking & Redeem Scripts</h1>
 			<div class="address">
-				<div class="address__qrcode">
-					<!-- canvas -->
-				</div>
+				<div class="address__qrcode"></div>
 				<div class="address__text"></div>
 				<div class="address__balance"></div>
 				<p id="wif"></p>
 				<button id="revealWif">Reveal PrivateKey</button>
 				<button id="exportKeys">Export Keys</button>
 			</div>
+			<div class="container" id="importWif">
+				<h2>Import WIF</h2>
+				<input type="text" id="importWifInfo" placeholder="wif" />
+				<button id="importWifBtn">Import WIF</button>
+			</div>
 		</div>
 		<div class="container" id="commonLocks">
 			<h2>Secret Password Locking Scripts</h2>
-
-			<!-- secret phrase -->
 			<div class="commonLocks__item">
 				<h3>Generate a Hash Lock</h3>
 				<label for="">Add Your Secret Below</label>
-				<!-- input for secret -->
 				<input type="password" id="secret" placeholder="secret" />
-				<!-- repeat secret -->
 				<label for="">Repeat Your Secret</label>
 				<input type="password" id="secretRepeat" placeholder="secret" />
-
-				<!-- input for amount -->
 				<input type="number" id="amount" placeholder="amount" />
-				<!-- button to generate locking script -->
-				<!-- add message -->
 				<label for="">Add a Message</label>
 				<input id="message" type="text" value="NFTYLocks" />
 				<label for="">Service Fee</label>
@@ -180,10 +162,8 @@
 				<button class="hidden" id="generateLockingScript">
 					Generate Locking Script
 				</button>
-				<!-- locking script -->
 				<div id="lockingscripts" class="hidden">
 					<p id="lockingScriptHex"></p>
-					<!-- asm -->
 					<p id="lockingScriptAsm"></p>
 					<button id="broadcast">Broadcast Transaction</button>
 				</div>
@@ -196,11 +176,8 @@
 			</div>
 			<div class="commonLocks__item">
 				<h1>Redeem a Lock</h1>
-				<!-- input for transaction id -->
 				<input type="text" id="transactionId" placeholder="transaction id" />
-				<!-- input for secret -->
 				<input type="password" id="redeemSecret" placeholder="secret" />
-				<!-- receiver address -->
 				<input
 					type="text"
 					id="receiverAddress"
@@ -216,20 +193,16 @@
 					id="serviceFee2"
 					placeholder="service fee"
 				/>
-				<!-- button to generate unlocking script -->
 				<button id="generateUnlockingScript">Generate Unlocking Script</button>
-				<!-- unlocking script -->
 				<p id="unlockingScriptHex"></p>
-				<!-- asm -->
 				<p id="unlockingScriptAsm"></p>
-
 				<button id="broadcastRedeemTx">Broadcast Transaction</button>
 				<p id="status1"></p>
 				<p id="txid2"></p>
 			</div>
 			<div class="commonLocks_item">
 				<h1>Send BSV</h1>
-				<p class="address__balance" id="currentBalance"></p>
+				<div class="address__balance"></div>
 				<label for="">Recipient's Address</label>
 				<input
 					type="text"
@@ -243,6 +216,7 @@
 				<p id="txid3"></p>
 			</div>
 			<div class="container" id="copyright2023NFTYLocksTechnology">
+				<p id="hashVersion"></p>
 				<p>
 					<a href="https://nftylocks.com" target="_blank"
 						>© 2023 NFTYLocks Technology</a
@@ -251,535 +225,535 @@
 			</div>
 		</div>
 		<script>
-			const Buffer = bsv.deps.Buffer;
-			const hash = bsv.crypto.Hash;
-			const sha256 = (buffer) => hash.sha256(buffer);
-			let redeemURL = "";
-			const createQrCode = (text) => {
-				const canvas = document.createElement("canvas");
-				const qr = new QRious({
-					element: canvas,
-					value: text,
-					size: 200,
-				});
-				document.querySelector(".address__qrcode").appendChild(canvas);
-			};
+						const Buffer = bsv.deps.Buffer;
+						const hash = bsv.crypto.Hash;
+						let appHash;
+						const sha256 = (buffer) => hash.sha256(buffer);
+						let redeemURL = "";
+						const createQrCode = (text) => {
+							const canvas = document.createElement("canvas");
+							const qr = new QRious({
+								element: canvas,
+								value: text,
+								size: 200,
+							});
+							document.querySelector(".address__qrcode").appendChild(canvas);
+						};
 
-			const broadcast = async (tx) => {
-				const url = "https://api.whatsonchain.com/v1/bsv/main/tx/raw";
-				const res = await fetch(url, {
-					method: "POST",
-					body: JSON.stringify({ txhex: tx }),
-				});
-				return res;
-			};
+						const broadcast = async (tx) => {
+							const url = "https://api.whatsonchain.com/v1/bsv/main/tx/raw";
+							const res = await fetch(url, {
+								method: "POST",
+								body: JSON.stringify({ txhex: tx }),
+							});
+							return res;
+						};
 
-			const generateKeys = () => {
-				const privateKey = new bsv.PrivateKey();
-				const publicKey = bsv.PublicKey.fromPrivateKey(privateKey);
-				const address = bsv.Address.fromPublicKey(publicKey);
-				return {
-					privateKey: privateKey.toString(),
-					publicKey: publicKey.toString(),
-					address: address.toString(),
-				};
-			};
-			// onload check if localstorage has keys
-			document.addEventListener("DOMContentLoaded", async () => {
-				let keys = localStorage.getItem("keys");
-				let address;
-				if (!localStorage.getItem("keys")) {
-					keys = generateKeys();
-					localStorage.setItem("keys", JSON.stringify(keys));
-				}
-				keys = JSON.parse(localStorage.getItem("keys"));
-				const { privateKey } = keys;
-				address = keys.address;
-				document.querySelector(".address__text").innerHTML = address;
-				await createQrCode(address);
-				const balance = await getBalance(address);
-				document.querySelector(
-					".address__balance"
-				).innerHTML = `Balance: ${balance} sats`;
-				// add address to receiver address
-				document.getElementById("receiverAddress").value = address;
-				//addeventlisten to address,privatekey,secret,amount, message and turn generate locking script button green
-			});
+						const generateKeys = () => {
+							const privateKey = new bsv.PrivateKey();
+							const publicKey = bsv.PublicKey.fromPrivateKey(privateKey);
+							const address = bsv.Address.fromPublicKey(publicKey);
+							return {
+								privateKey: privateKey.toString(),
+								publicKey: publicKey.toString(),
+								address: address.toString(),
+								wif: privateKey.toWIF(),
+							};
+						};
+						document.addEventListener("DOMContentLoaded", async () => {
+							let keys = localStorage.getItem("keys");
+							let address;
+							if (!localStorage.getItem("keys")) {
+								keys = generateKeys();
+								localStorage.setItem("keys", JSON.stringify(keys));
+							}
+							keys = JSON.parse(localStorage.getItem("keys"));
+							const { privateKey } = keys;
+							address = keys.address;
+							document.querySelector(".address__text").innerHTML = address;
+							await createQrCode(address);
+							const balance = await getBalance(address);
+							document.querySelector(
+								".address__balance"
+							).innerHTML = `Balance: ${balance} sats`;
+							document.getElementById("receiverAddress").value = address;
+							const hashOfHtml = sha256(
+								Buffer.from(document.body.innerHTML)
+							).toString("hex");
+							document.getElementById(
+								"hashVersion"
+							).innerHTML = `Hash of this page: ${hashOfHtml}`;
+							appHash = hashOfHtml;
+						});
 
-			const getUtxos = async (address) => {
-				// whatsonchain
-				const url = `https://api.whatsonchain.com/v1/bsv/main/address/${address}/unspent`;
-				const res = await fetch(url);
-				const json = await res.json();
-				const utxos = [];
-				json.forEach((utxo) => {
-					utxos.push({
-						txid: utxo.tx_hash,
-						vout: utxo.tx_pos,
-						script: bsv.Script.buildPublicKeyHashOut(address).toHex(),
-						satoshis: utxo.value,
-					});
-				});
-				return utxos;
-			};
-			const getBalance = async (address) => {
-				// whatsonchain
-				const url = `https://api.whatsonchain.com/v1/bsv/main/address/${address}/balance`;
-				const res = await fetch(url);
-				const json = await res.json();
-				const balance = json.confirmed + json.unconfirmed;
-				return balance;
-			};
-			const getTx = async (txid) => {
-				// whatsonchain
-				const url = `https://api.whatsonchain.com/v1/bsv/main/tx/hash/${txid}`;
-				const res = await fetch(url);
-				const json = await res.json();
-				return json;
-			};
+						const getUtxos = async (address) => {
+							const url = `https://api.whatsonchain.com/v1/bsv/main/address/${address}/unspent`;
+							const res = await fetch(url);
+							const json = await res.json();
+							const utxos = [];
+							json.forEach((utxo) => {
+								utxos.push({
+									txid: utxo.tx_hash,
+									vout: utxo.tx_pos,
+									script: bsv.Script.buildPublicKeyHashOut(address).toHex(),
+									satoshis: utxo.value,
+								});
+							});
+							return utxos;
+						};
+						const getBalance = async (address) => {
+							const url = `https://api.whatsonchain.com/v1/bsv/main/address/${address}/balance`;
+							const res = await fetch(url);
+							const json = await res.json();
+							const balance = json.confirmed + json.unconfirmed;
+							return balance;
+						};
+						const getTx = async (txid) => {
+							const url = `https://api.whatsonchain.com/v1/bsv/main/tx/hash/${txid}`;
+							const res = await fetch(url);
+							const json = await res.json();
+							return json;
+						};
 
-			const buildHashLock = async (
-				address,
-				privateKey,
-				secret,
-				message,
-				amount
-			) => {
-				let utxos = await getUtxos(address);
-				// convert to whatsonchain format
-				// utxos = utxos.filter((utxo) => utxo.satoshis > amount);
-				const totalSats = utxos.reduce((acc, utxo) => acc + utxo.satoshis, 0);
-				const serviceFee = document.getElementById("serviceFee").value || 50;
-				console.log(utxos);
-				const tx = new bsv.Transaction();
-				tx.from(utxos);
-				// create sha256 hash of secret
-				console.log(secret);
-				const hash = sha256(Buffer.from(secret));
-				console.log(hash.toString("hex"));
-				const secretHash = sha256(hash).toString("hex");
-				console.log(secretHash.toString("hex"));
+						const buildHashLock = async (
+							address,
+							privateKey,
+							secret,
+							message,
+							amount
+						) => {
+							let utxos = await getUtxos(address);
+							const totalSats = utxos.reduce((acc, utxo) => acc + utxo.satoshis, 0);
+							const serviceFee = document.getElementById("serviceFee").value || 50;
+							console.log(utxos);
+							const tx = new bsv.Transaction();
+							tx.from(utxos);
+							console.log(secret);
+							const hash = sha256(Buffer.from(secret));
+							console.log(hash.toString("hex"));
+							const secretHash = sha256(hash).toString("hex");
+							console.log(secretHash.toString("hex"));
+							const lock = new bsv.Script.empty()
+								.add(bsv.Opcode.OP_SHA256)
+								.add(Buffer.from(secretHash, "hex"))
+								.add(bsv.Opcode.OP_EQUAL)
+								.add(bsv.Opcode.OP_RETURN)
+								.add(Buffer.from(message))
+								.add(Buffer.from("© 2023 NFTYLocks Technology"))
+								.add(Buffer.from(appHash));
+							console.log(amount);
+							tx.addOutput(
+								new bsv.Transaction.Output({
+									script: lock,
+									satoshis: parseInt(amount),
+								})
+							);
+							const appServiceAddress = "15PZaZYD9u6nhD8eGVY8pBKdumaDnuynCy";
+							tx.to(appServiceAddress, parseInt(serviceFee));
+							tx.feePerKb(50);
+							tx.change(address);
+							if (totalSats < tx.getFee()) {
+								alert(
+									`Insufficient funds. You need ${tx.getFee()} sats. You currently have ${totalSats} sats.`
+								);
+								return;
+							}
+							tx.sign(privateKey);
+							document.getElementById("lockingscripts").classList.remove("hidden");
+							document
+								.getElementById("generateLockingScript")
+								.classList.add("hidden");
+							console.log("Tx", tx.toString());
+							return tx;
+						};
+						const buildHashUnlockingStack = async (
+							txinfo,
+							secret,
+							receiverAddress
+						) => {
+							const secretHash = sha256(Buffer.from(secret)).toString("hex");
+							console.log(secretHash);
+							const nonstandardOutputs = txinfo.vout.filter(
+								(output) => output.scriptPubKey.type === "nonstandard"
+							);
+							const utxo = nonstandardOutputs[0];
+							console.log(nonstandardOutputs);
+							const script = bsv.Script.fromHex(utxo.scriptPubKey.hex);
+							const sats = Math.floor(utxo.value * 100000000);
+							console.log(sats);
+							const unlockingScript = new bsv.Script().add(
+								Buffer.from(secretHash, "hex")
+							);
+							const tx = new bsv.Transaction();
+							tx.feePerKb(50);
+							tx.from({
+								txid: txinfo.txid,
+								vout: 0,
+								script: script,
+								satoshis: sats,
+							});
+							const serviceFee2 = document.getElementById("serviceFee2").value || 0;
+							const estFee = tx._estimateFee();
+							tx.to(receiverAddress, sats - estFee - parseInt(serviceFee2));
+							if (serviceFee2 > 0 && sats + estFee > parseInt(serviceFee2)) {
+								tx.to("15PZaZYD9u6nhD8eGVY8pBKdumaDnuynCy", parseInt(serviceFee2));
+							}
+							tx.inputs[0].setScript(unlockingScript);
+							console.log(tx.uncheckedSerialize());
+							return tx;
+						};
 
-				// if prefer to use output with safe data for message
-				// const safeData = Buffer.from(message);
-				// tx.addOutput = new bsv.Transaction.Output({
-				// 	script: bsv.Script.buildSafeDataOut(safeData),
-				// 	satoshis: 0,
-				// });
+						const generateLockingScriptBtn = document.getElementById(
+							"generateLockingScript"
+						);
+						generateLockingScriptBtn.addEventListener("click", async () => {
+							const keys = JSON.parse(localStorage.getItem("keys"));
+							const { privateKey, address } = keys;
+							const amount = document.getElementById("amount").value;
+							const secret = document.getElementById("secret").value;
+							const secretRepeat = document.getElementById("secretRepeat").value;
+							if (secret !== secretRepeat) {
+								alert("Secrets do not match");
+								return;
+							}
+							const message = document.getElementById("message").value;
+							const tx = await buildHashLock(
+								address,
+								privateKey,
+								secret,
+								message,
+								amount
+							);
+							document.getElementById("lockingScriptHex").innerHTML =
+								tx.toString("hex");
+							document.getElementById(
+								"lockingScriptAsm"
+							).innerHTML = `<p>ASM:</br><span>${tx.outputs[0].script.toASM()}</span></p>`;
+							document.getElementById("broadcast").style.backgroundColor = "green";
+							document.getElementById("broadcast").style.color = "white";
+							document.getElementById("lockingScriptAsm").scrollIntoView();
+						});
+						const generateUnlockingScriptBtn = document.getElementById(
+							"generateUnlockingScript"
+						);
+						generateUnlockingScriptBtn.addEventListener("click", async () => {
+							const secret = document.getElementById("redeemSecret").value;
+							const txid = document.getElementById("transactionId").value;
+							const receiverAddress =
+								document.getElementById("receiverAddress").value;
+							const tx = await getTx(txid);
+							console.log(tx);
+							let spent = false;
+							tx.vout.forEach((output, i) => {
+								if (output.spent && i !== tx.vout.length - 1) {
+									spent = true;
+									document.getElementById(
+										"unlockingScriptHex"
+									).innerHTML = `<p>Transaction already spent</p>`;
+									document.getElementById(
+										"unlockingScriptAsm"
+									).innerHTML = `<a href="https://whatsonchain.com/tx/${output.spent.txid}" target="_blank">View Transaction</a>`;
+								}
+							});
+							if (spent) return;
+							const unlockingScript = await buildHashUnlockingStack(
+								tx,
+								secret,
+								receiverAddress
+							);
+							document.getElementById("unlockingScriptHex").innerHTML =
+								unlockingScript.toString("hex");
+							document.getElementById("broadcastRedeemTx").style.backgroundColor =
+								"green";
+							document.getElementById(
+								"unlockingScriptAsm"
+							).innerHTML = `<p>ASM: ${unlockingScript.inputs[0].script.toASM()}</p>`;
+						});
 
-				const lock = new bsv.Script.empty()
-					.add(bsv.Opcode.OP_SHA256)
-					.add(Buffer.from(secretHash, "hex"))
-					.add(bsv.Opcode.OP_EQUAL)
-					.add(bsv.Opcode.OP_RETURN)
-					.add(Buffer.from("© 2023 NFTYLocks Technology"))
-					.add(Buffer.from(message));
-				// add message
+						const broadcastBtn = document.getElementById("broadcast");
+						broadcastBtn.addEventListener("click", async () => {
+							const tx = document.getElementById("lockingScriptHex").innerHTML;
+							console.log(tx);
+							const response = await broadcast(tx);
+							const res = await response.json();
 
-				console.log(amount);
-				tx.addOutput(
-					new bsv.Transaction.Output({
-						script: lock,
-						satoshis: parseInt(amount),
-					})
-				);
-				const appServiceAddress = "15PZaZYD9u6nhD8eGVY8pBKdumaDnuynCy";
-				tx.to(appServiceAddress, parseInt(serviceFee));
-				tx.feePerKb(50);
-				tx.change(address);
-				if (totalSats < tx.getFee()) {
-					alert(
-						`Insufficient funds. You need ${tx.getFee()} sats. You currently have ${totalSats} sats.`
-					);
-					return;
-				}
-				tx.sign(privateKey);
-				//remove hidden from locking script
-				document.getElementById("lockingscripts").classList.remove("hidden");
-				// console.log(tx.outputs[0].script.toHex());
-				document
-					.getElementById("generateLockingScript")
-					.classList.add("hidden");
-				console.log("Tx", tx.toString());
-				// console log script in asm
-				// console.log(tx.outputs[0].script.toASM());
-				return tx;
-			};
-			const buildHashUnlockingStack = async (
-				txinfo,
-				secret,
-				receiverAddress
-			) => {
-				const secretHash = sha256(Buffer.from(secret)).toString("hex");
-				console.log(secretHash);
-				// const utxo = txinfo.vout[0];
-				const nonstandardOutputs = txinfo.vout.filter(
-					(output) => output.scriptPubKey.type === "nonstandard"
-				);
-				const utxo = nonstandardOutputs[0];
-				console.log(nonstandardOutputs);
-				const script = bsv.Script.fromHex(utxo.scriptPubKey.hex);
-				const sats = Math.floor(utxo.value * 100000000);
-				console.log(sats);
-				// additional funding input
-				// const additionalUtxos = await getUtxos(receiverAddress);
+							console.log(response);
+							if (!response.ok) {
+								alert(res);
+								return;
+							}
+							document.getElementById(
+								"status"
+							).innerHTML = `Transaction Successfully Broadcasted`;
+							document.getElementById(
+								"txid"
+							).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
+							const txid = res;
+							const secret = document.getElementById("secret").value;
+							let currentUrl = window.location.href;
+							currentUrl += `?txid=${txid}&secret=${secret}`;
+							document.getElementById(
+								"nftylocksUrl"
+							).innerHTML = `<a href="${currentUrl}" target="_blank"><span id="url">${currentUrl}</a>`;
+							redeemURL = currentUrl;
+							document.getElementById("lockSuccess").classList.remove("hidden");
+							document.getElementById("lockingscripts").classList.add("hidden");
+							document.getElementById("status").scrollIntoView();
+							broadcastBtn.style.backgroundColor = "grey";
+							broadcastBtn.style.color = "black";
+							broadcastBtn.disabled = true;
+							const keys = JSON.parse(localStorage.getItem("keys"));
+							const { address } = keys;
+							const balance = await getBalance(address);
+							document.querySelector(
+								".address__balance"
+							).innerHTML = `Balance: ${balance} sats`;
+						});
 
-				const unlockingScript = new bsv.Script().add(
-					// secret hash
-					Buffer.from(secretHash, "hex")
-				);
-				// .add(Buffer.from(secretHash, "hex"));
-				const tx = new bsv.Transaction();
-				tx.feePerKb(50);
-				tx.from({
-					txid: txinfo.txid,
-					vout: 0,
-					script: script,
-					satoshis: sats,
-				});
-				const serviceFee2 = document.getElementById("serviceFee2").value || 0;
-				const estFee = tx._estimateFee();
-				tx.to(receiverAddress, sats - estFee - parseInt(serviceFee2));
-				// add additional funding inputs
-				// tx.from(additionalUtxos);
-				// tx.change(utxoFunding);
-				if (serviceFee2 > 0 && sats + estFee > parseInt(serviceFee2)) {
-					tx.to("15PZaZYD9u6nhD8eGVY8pBKdumaDnuynCy", parseInt(serviceFee2));
-				}
-				tx.inputs[0].setScript(unlockingScript);
-				console.log(tx.uncheckedSerialize());
-				return tx;
-			};
+						const broadcastRedeemTxBtn = document.getElementById("broadcastRedeemTx");
+						broadcastRedeemTxBtn.addEventListener("click", async () => {
+							const tx = document.getElementById("unlockingScriptHex").innerHTML;
+							const response = await broadcast(tx);
+							const res = await response.json();
 
-			const generateLockingScriptBtn = document.getElementById(
-				"generateLockingScript"
-			);
-			generateLockingScriptBtn.addEventListener("click", async () => {
-				const keys = JSON.parse(localStorage.getItem("keys"));
-				const { privateKey, address } = keys;
-				const amount = document.getElementById("amount").value;
-				const secret = document.getElementById("secret").value;
-				const secretRepeat = document.getElementById("secretRepeat").value;
-				if (secret !== secretRepeat) {
-					alert("Secrets do not match");
-					return;
-				}
-				const message = document.getElementById("message").value;
-				const tx = await buildHashLock(
-					address,
-					privateKey,
-					secret,
-					message,
-					amount
-				);
-				document.getElementById("lockingScriptHex").innerHTML =
-					tx.toString("hex");
+							console.log(response);
+							if (!response.ok) {
+								alert(res);
+								broadcastRedeemTxBtn.style.backgroundColor = "grey";
+								broadcastRedeemTxBtn.style.color = "black";
+								broadcastRedeemTxBtn.disabled = true;
+								return;
+							}
+							document.getElementById(
+								"status1"
+							).innerHTML = `Transaction Successfully Broadcasted`;
+							alert(
+								`Transaction broadcasted successfully. Your Lock has been redeemed and satoshis sent to your address.`
+							);
 
-				// turn broadcast button green
-				document.getElementById(
-					"lockingScriptAsm"
-				).innerHTML = `<p>ASM:</br><span>${tx.outputs[0].script.toASM()}</span></p>`;
-				document.getElementById("broadcast").style.backgroundColor = "green";
-				document.getElementById("broadcast").style.color = "white";
-				document.getElementById("lockingScriptAsm").scrollIntoView();
-			});
-			const generateUnlockingScriptBtn = document.getElementById(
-				"generateUnlockingScript"
-			);
-			generateUnlockingScriptBtn.addEventListener("click", async () => {
-				const secret = document.getElementById("redeemSecret").value;
-				const txid = document.getElementById("transactionId").value;
-				const receiverAddress =
-					document.getElementById("receiverAddress").value;
-				const tx = await getTx(txid);
-				console.log(tx);
-				let spent = false;
-				tx.vout.forEach((output, i) => {
-					if (output.spent && i !== tx.vout.length - 1) {
-						spent = true;
-						document.getElementById(
-							"unlockingScriptHex"
-						).innerHTML = `<p>Transaction already spent</p>`;
-						document.getElementById(
-							"unlockingScriptAsm"
-						).innerHTML = `<a href="https://whatsonchain.com/tx/${output.spent.txid}" target="_blank">View Transaction</a>`;
-					}
-				});
-				if (spent) return;
-				const unlockingScript = await buildHashUnlockingStack(
-					tx,
-					secret,
-					receiverAddress
-				);
-				document.getElementById("unlockingScriptHex").innerHTML =
-					unlockingScript.toString("hex");
-				// turn broadcast button green
-				document.getElementById("broadcastRedeemTx").style.backgroundColor =
-					"green";
-				document.getElementById(
-					"unlockingScriptAsm"
-				).innerHTML = `<p>ASM: ${unlockingScript.inputs[0].script.toASM()}</p>`;
-			});
+							document.getElementById(
+								"txid2"
+							).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
+							document.getElementById("status1").scrollIntoView();
+							broadcastRedeemTxBtn.style.backgroundColor = "grey";
+							broadcastRedeemTxBtn.style.color = "black";
+							broadcastRedeemTxBtn.disabled = true;
+							const keys = JSON.parse(localStorage.getItem("keys"));
+							const { address } = keys;
+							const balance = await getBalance(address);
+							document.querySelector(
+								".address__balance"
+							).innerHTML = `Balance: ${balance} sats`;
+						});
 
-			const broadcastBtn = document.getElementById("broadcast");
-			broadcastBtn.addEventListener("click", async () => {
-				const tx = document.getElementById("lockingScriptHex").innerHTML;
-				console.log(tx);
-				const response = await broadcast(tx);
-				const res = await response.json();
+						const sendBsvBtn = document.getElementById("sendBsv");
+						sendBsvBtn.addEventListener("click", async () => {
+							const keys = JSON.parse(localStorage.getItem("keys"));
+							const { privateKey, address } = keys;
+							const receiverAddress =
+								document.getElementById("receiverAddress2").value;
+							const amount = document.getElementById("amount2").value;
+							let utxos = await getUtxos(address);
+							const totalSats = utxos.reduce((acc, utxo) => acc + utxo.satoshis, 0);
+							console.log(utxos);
+							const tx = new bsv.Transaction();
+							tx.from(utxos);
+							tx.to(receiverAddress, parseInt(amount));
+							tx.feePerKb(50);
+							tx.change(address);
+							const availSats = totalSats - tx.getFee();
+							if (availSats < amount) {
+								alert(
+									`Insufficient funds. You need ${amount} sats. You currently have ${availSats} sats.`
+								);
+								return;
+							}
+							tx.sign(privateKey);
+							console.log(tx.toString());
+							if (!confirm("Are you sure you want to send this transaction?")) return;
 
-				console.log(response);
-				if (!response.ok) {
-					alert(res);
-					return;
-				}
-				document.getElementById(
-					"status"
-				).innerHTML = `Transaction Successfully Broadcasted`;
-				document.getElementById(
-					"txid"
-				).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
-				// add url to nftylocks nftylocks.com?txid=txid&secret=secret&address=address
-				const txid = res;
-				const secret = document.getElementById("secret").value;
-				document.getElementById(
-					"nftylocksUrl"
-				).innerHTML = `<a href="https://nftylocks.com?txid=${txid}&secret=${secret}" target="_blank"><span id="url">https://nftylocks.com?txid=${txid}&secret=${secret}</a>`;
-				redeemURL = `https://nftylocks.com?txid=${txid}&secret=${secret}`;
-				// remove hidden from success
-				// alert(`Transaction broadcasted. Share this URL with the recipient:
-				// https://nftylocks.com?txid=${txid}&secret=${secret}`);
-				document.getElementById("lockSuccess").classList.remove("hidden");
-				document.getElementById("lockingscripts").classList.add("hidden");
-				document.getElementById("status").scrollIntoView();
-				// make broadcast button inactive
+							const response = await broadcast(tx.toString());
+							const res = await response.json();
 
-				broadcastBtn.style.backgroundColor = "grey";
-				broadcastBtn.style.color = "black";
-				broadcastBtn.disabled = true;
-				// update balance
-				const keys = JSON.parse(localStorage.getItem("keys"));
-				const { address } = keys;
-				const balance = await getBalance(address);
-				document.querySelector(
-					".address__balance"
-				).innerHTML = `Balance: ${balance} sats`;
-			});
+							console.log(response);
+							if (!response.ok) {
+								alert(res);
+								return;
+							}
+							document.getElementById(
+								"status2"
+							).innerHTML = `Transaction Successfully Broadcasted`;
+							document.getElementById(
+								"txid3"
+							).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
+							document.getElementById("txid3").scrollIntoView();
+							// update balance
+							const balance = await getBalance(address);
+							document.querySelector(
+								".address__balance"
+							).innerHTML = `Balance: ${balance} sats`;
+						});
+			<<<<<<< HEAD
 
-			const broadcastRedeemTxBtn = document.getElementById("broadcastRedeemTx");
-			broadcastRedeemTxBtn.addEventListener("click", async () => {
-				const tx = document.getElementById("unlockingScriptHex").innerHTML;
-				const response = await broadcast(tx);
-				const res = await response.json();
+						// check url params for txid ,  secret, and receiver address
+						// https://api.whatsonchain.com/v1/bsv/main/tx/{txid}/{output}/spent
+						const testSpent = async (txid, output) => {
+							const url = `https://api.whatsonchain.com/v1/bsv/main/tx/${txid}/${output}/spent`;
+							const res = await fetch(url);
+							const json = await res.json();
+							console.log(json);
+							return json;
+						};
+			=======
+			>>>>>>> f8fbb4fab1a9c178af97ead87550d5e7c5f275c1
+						const checkParams = async () => {
+							const urlParams = new URLSearchParams(window.location.search);
+							let txid = urlParams.get("txid") || "";
+							let secret = urlParams.get("secret") || "";
+							let localAddress = JSON.parse(localStorage.getItem("keys")).address;
+							let receiver = urlParams.get("address") || localAddress;
+							let unlockingScript;
+							document.getElementById("transactionId").value = txid;
+							document.getElementById("redeemSecret").value = secret;
+							document.getElementById("receiverAddress").value = receiver;
+							if (txid.length > 1 && secret.length > 1 && receiver.length > 1) {
+			<<<<<<< HEAD
+								// trigger generate unlocking script button
+								//test if transaction is spent
+								// const spent = await testSpent(txid, 0);
+								// if (spent) {
+								// 	alert("Transaction already spent");
+								// 	return;
+								// }
+			=======
+			>>>>>>> f8fbb4fab1a9c178af97ead87550d5e7c5f275c1
+								document.getElementById("generateUnlockingScript").click();
+								document.getElementById("unlockingScriptHex").scrollIntoView();
+								document.getElementById(
+									"broadcastRedeemTx"
+								).innerHTML = `Redeem Your Lock`;
+							}
+							document.getElementById("broadcastRedeemTx").style.color = "white";
+							const url = window.location.href;
+							const newUrl = url.split("?")[0];
+							window.history.pushState({}, null, newUrl);
+						};
+						checkParams();
+						const secretValue = document.getElementById("secret");
+						const secretRepeatValue = document.getElementById("secretRepeat");
+						const amountValue = document.getElementById("amount");
+						const messageValue = document.getElementById("message");
+						const serviceFeeValue = document.getElementById("serviceFee");
+						let totalFilled = false;
+						const checkFilled = () => {
+							if (
+								secretValue.value.length > 1 &&
+								secretRepeatValue.value.length > 1 &&
+								amountValue.value.length > 1 &&
+								messageValue.value.length > 1 &&
+								serviceFeeValue.value.length > 1
+							) {
+								totalFilled = true;
+								document
+									.getElementById("generateLockingScript")
+									.classList.remove("hidden");
+							}
+						};
+						secretValue.addEventListener("input", () => {
+							checkFilled();
+							if (totalFilled) {
+								generateLockingScriptBtn.style.backgroundColor = "green";
+							}
+						});
+						secretRepeatValue.addEventListener("input", () => {
+							checkFilled();
+							if (totalFilled) {
+								generateLockingScriptBtn.style.backgroundColor = "green";
+							}
+						});
+						amountValue.addEventListener("input", () => {
+							checkFilled();
+							if (totalFilled) {
+								generateLockingScriptBtn.style.backgroundColor = "green";
+							}
+						});
+						messageValue.addEventListener("input", () => {
+							checkFilled();
+							if (totalFilled) {
+								generateLockingScriptBtn.style.backgroundColor = "green";
+							}
+						});
+						serviceFeeValue.addEventListener("input", () => {
+							checkFilled();
+							if (totalFilled) {
+								generateLockingScriptBtn.style.backgroundColor = "green";
+							}
+						});
 
-				console.log(response);
-				if (!response.ok) {
-					alert(res);
-					broadcastRedeemTxBtn.style.backgroundColor = "grey";
-					broadcastRedeemTxBtn.style.color = "black";
-					broadcastRedeemTxBtn.disabled = true;
-					return;
-				}
-				document.getElementById(
-					"status1"
-				).innerHTML = `Transaction Successfully Broadcasted`;
-				document.getElementById(
-					"txid2"
-				).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
-				document.getElementById("status1").scrollIntoView();
+						const copyToClipboardBtn = document.getElementById("copyToClipboard");
+						copyToClipboardBtn.addEventListener("click", () => {
+							console.log(redeemURL);
+							navigator.clipboard.writeText(redeemURL);
+							alert("Copied to clipboard");
+						});
+						const exportKeysBtn = document.getElementById("exportKeys");
+						exportKeysBtn.addEventListener("click", () => {
+							const keys = JSON.parse(localStorage.getItem("keys"));
+							const { privateKey, publicKey, address } = keys;
+							const data = {
+								privateKey,
+								wif: privateKey,
+								publicKey,
+								address,
+							};
+							const dataStr =
+								"data:text/json;charset=utf-8," +
+								encodeURIComponent(JSON.stringify(data));
+							const downloadAnchorNode = document.createElement("a");
+							downloadAnchorNode.setAttribute("href", dataStr);
+							downloadAnchorNode.setAttribute("download", "keys.json");
+							document.body.appendChild(downloadAnchorNode);
+							downloadAnchorNode.click();
+							downloadAnchorNode.remove();
+						});
 
-				// disable button
-				broadcastRedeemTxBtn.style.backgroundColor = "grey";
-				broadcastRedeemTxBtn.style.color = "black";
-				broadcastRedeemTxBtn.disabled = true;
-				// update balance
-				const keys = JSON.parse(localStorage.getItem("keys"));
-				const { address } = keys;
-				const balance = await getBalance(address);
-				document.querySelector(
-					".address__balance"
-				).innerHTML = `Balance: ${balance} sats`;
-			});
+						const revealWifBtn = document.getElementById("revealWif");
+						revealWifBtn.addEventListener("click", () => {
+							if (document.getElementById("wif").innerHTML.length > 0) {
+								document.getElementById("wif").innerHTML = "";
+								return;
+							}
+							const keys = JSON.parse(localStorage.getItem("keys"));
+							const { privateKey, publicKey, address } = keys;
+							document.getElementById("wif").innerHTML = `WIF: ${privateKey}`;
+							revealWifBtn.innerHTML = "Hide WIF";
+						});
 
-			const sendBsvBtn = document.getElementById("sendBsv");
-			sendBsvBtn.addEventListener("click", async () => {
-				const keys = JSON.parse(localStorage.getItem("keys"));
-				const { privateKey, address } = keys;
-				const receiverAddress =
-					document.getElementById("receiverAddress2").value;
-				const amount = document.getElementById("amount2").value;
-				let utxos = await getUtxos(address);
-				// convert to whatsonchain format
-				// utxos = utxos.filter((utxo) => utxo.satoshis > amount);
-				const totalSats = utxos.reduce((acc, utxo) => acc + utxo.satoshis, 0);
-				console.log(utxos);
-				const tx = new bsv.Transaction();
-				tx.from(utxos);
-				tx.to(receiverAddress, parseInt(amount));
-				tx.feePerKb(50);
-				tx.change(address);
-				const availSats = totalSats - tx.getFee();
-				if (availSats < amount) {
-					alert(
-						`Insufficient funds. You need ${amount} sats. You currently have ${availSats} sats.`
-					);
-					return;
-				}
-				tx.sign(privateKey);
-				console.log(tx.toString());
-				if (!confirm("Are you sure you want to send this transaction?")) return;
-
-				const response = await broadcast(tx.toString());
-				const res = await response.json();
-
-				console.log(response);
-				if (!response.ok) {
-					alert(res);
-					return;
-				}
-				document.getElementById(
-					"status2"
-				).innerHTML = `Transaction Successfully Broadcasted`;
-				document.getElementById(
-					"txid3"
-				).innerHTML = `<a href="https://whatsonchain.com/tx/${res}" target="_blank">${res}</a>`;
-				document.getElementById("txid3").scrollIntoView();
-				// update balance
-				const balance = await getBalance(address);
-				document.querySelector(
-					".address__balance"
-				).innerHTML = `Balance: ${balance} sats`;
-			});
-
-			// check url params for txid ,  secret, and receiver address
-			// https://api.whatsonchain.com/v1/bsv/main/tx/{txid}/{output}/spent
-			const testSpent = async (txid, output) => {
-				const url = `https://api.whatsonchain.com/v1/bsv/main/tx/${txid}/${output}/spent`;
-				const res = await fetch(url);
-				const json = await res.json();
-				console.log(json);
-				return json;
-			};
-			const checkParams = async () => {
-				const urlParams = new URLSearchParams(window.location.search);
-				let txid = urlParams.get("txid") || "";
-				let secret = urlParams.get("secret") || "";
-				let localAddress = JSON.parse(localStorage.getItem("keys")).address;
-				let receiver = urlParams.get("address") || localAddress;
-				let unlockingScript;
-				document.getElementById("transactionId").value = txid;
-				document.getElementById("redeemSecret").value = secret;
-				document.getElementById("receiverAddress").value = receiver;
-				if (txid.length > 1 && secret.length > 1 && receiver.length > 1) {
-					// trigger generate unlocking script button
-					//test if transaction is spent
-					// const spent = await testSpent(txid, 0);
-					// if (spent) {
-					// 	alert("Transaction already spent");
-					// 	return;
-					// }
-					document.getElementById("generateUnlockingScript").click();
-					// scroll to unlocking script
-					document.getElementById("unlockingScriptHex").scrollIntoView();
-					document.getElementById(
-						"broadcastRedeemTx"
-					).innerHTML = `Redeem Your Lock`;
-				}
-				// sanitize url
-				const url = window.location.href;
-				const newUrl = url.split("?")[0];
-				window.history.pushState({}, null, newUrl);
-			};
-			checkParams();
-			const secretValue = document.getElementById("secret");
-			const secretRepeatValue = document.getElementById("secretRepeat");
-			const amountValue = document.getElementById("amount");
-			const messageValue = document.getElementById("message");
-			const serviceFeeValue = document.getElementById("serviceFee");
-			let totalFilled = false;
-			const checkFilled = () => {
-				if (
-					secretValue.value.length > 1 &&
-					secretRepeatValue.value.length > 1 &&
-					amountValue.value.length > 1 &&
-					messageValue.value.length > 1 &&
-					serviceFeeValue.value.length > 1
-				) {
-					totalFilled = true;
-					document
-						.getElementById("generateLockingScript")
-						.classList.remove("hidden");
-				}
-			};
-			secretValue.addEventListener("input", () => {
-				checkFilled();
-				if (totalFilled) {
-					generateLockingScriptBtn.style.backgroundColor = "green";
-				}
-			});
-			secretRepeatValue.addEventListener("input", () => {
-				checkFilled();
-				if (totalFilled) {
-					generateLockingScriptBtn.style.backgroundColor = "green";
-				}
-			});
-			amountValue.addEventListener("input", () => {
-				checkFilled();
-				if (totalFilled) {
-					generateLockingScriptBtn.style.backgroundColor = "green";
-				}
-			});
-			messageValue.addEventListener("input", () => {
-				checkFilled();
-				if (totalFilled) {
-					generateLockingScriptBtn.style.backgroundColor = "green";
-				}
-			});
-			serviceFeeValue.addEventListener("input", () => {
-				checkFilled();
-				if (totalFilled) {
-					generateLockingScriptBtn.style.backgroundColor = "green";
-				}
-			});
-
-			const copyToClipboardBtn = document.getElementById("copyToClipboard");
-			copyToClipboardBtn.addEventListener("click", () => {
-				console.log(redeemURL);
-				navigator.clipboard.writeText(redeemURL);
-				alert("Copied to clipboard");
-			});
-			const exportKeysBtn = document.getElementById("exportKeys");
-			exportKeysBtn.addEventListener("click", () => {
-				const keys = JSON.parse(localStorage.getItem("keys"));
-				const { privateKey, publicKey, address } = keys;
-				const data = {
-					privateKey,
-					wif: privateKey,
-					publicKey,
-					address,
-				};
-				const dataStr =
-					"data:text/json;charset=utf-8," +
-					encodeURIComponent(JSON.stringify(data));
-				const downloadAnchorNode = document.createElement("a");
-				downloadAnchorNode.setAttribute("href", dataStr);
-				downloadAnchorNode.setAttribute("download", "keys.json");
-				document.body.appendChild(downloadAnchorNode); // required for firefox
-				downloadAnchorNode.click();
-				downloadAnchorNode.remove();
-			});
-
-			const revealWifBtn = document.getElementById("revealWif");
-			revealWifBtn.addEventListener("click", () => {
-				if (document.getElementById("wif").innerHTML.length > 0) {
-					document.getElementById("wif").innerHTML = "";
-					return;
-				}
-				const keys = JSON.parse(localStorage.getItem("keys"));
-				const { privateKey, publicKey, address } = keys;
-				document.getElementById("wif").innerHTML = `WIF: ${privateKey}`;
-				revealWifBtn.innerHTML = "Hide WIF";
-			});
+						const importWifBtn = document.getElementById("importWifBtn");
+						const importWifInfo = document.getElementById("importWifInfo");
+						importWifBtn.addEventListener("click", () => {
+							const wif = importWifInfo.value;
+							if (wif.length < 1) {
+								alert("Invalid WIF");
+								return;
+							}
+							if (localStorage.getItem("keys")) {
+								if (
+									!confirm("Are you sure you want to overwrite your existing keys?")
+								)
+									return;
+							}
+							const privateKey = bsv.PrivateKey.fromWIF(wif);
+							const publicKey = bsv.PublicKey.fromPrivateKey(privateKey);
+							const address = bsv.Address.fromPublicKey(publicKey);
+							const keys = {
+								privateKey: privateKey.toString(),
+								publicKey: publicKey.toString(),
+								address: address.toString(),
+							};
+							localStorage.setItem("keys", JSON.stringify(keys));
+							window.location.reload();
+						});
 		</script>
 	</body>
 </html>
