@@ -168,16 +168,6 @@
 					<label id="checkboxLabel" for="">Encrypt Message?</label>
 					<input id="checkbox" type="checkbox" />
 				</div>
-				<label id="serviceFeeLabel" for="">Service Fee</label>
-				<input
-					min="50"
-					value="50"
-					max="100000000"
-					step="50"
-					type="number"
-					id="serviceFee"
-					placeholder="service fee"
-				/>
 				<button class="hidden" id="generateLockingScript">
 					Generate Locking Script
 				</button>
@@ -201,16 +191,6 @@
 					type="text"
 					id="receiverAddress"
 					placeholder="receiver address"
-				/>
-				<label for="">Service Fee</label>
-				<input
-					min="0"
-					max="100000000"
-					step="50"
-					value="1"
-					type="number"
-					id="serviceFee2"
-					placeholder="service fee"
 				/>
 				<button id="generateUnlockingScript">Generate Unlocking Script</button>
 				<p id="unlockingScriptHex"></p>
@@ -389,7 +369,7 @@
 			) => {
 				let utxos = await getUtxos(address);
 				const totalSats = utxos.reduce((acc, utxo) => acc + utxo.satoshis, 0);
-				const serviceFee = document.getElementById("serviceFee").value || 50;
+				// const serviceFee = document.getElementById("serviceFee").value || 50;
 				console.log(utxos);
 				const tx = new bsv.Transaction();
 				tx.from(utxos);
@@ -422,7 +402,7 @@
 					})
 				);
 				const appServiceAddress = "15PZaZYD9u6nhD8eGVY8pBKdumaDnuynCy";
-				tx.to(appServiceAddress, parseInt(serviceFee));
+				tx.to(appServiceAddress, 50);
 				tx.feePerKb(50);
 				tx.change(address);
 				if (totalSats < tx.getFee()) {
@@ -432,11 +412,7 @@
 					return;
 				}
 				alert(
-					`The Details of your Tx is Amount Sending: ${amount} sats, Application Service Fee: ${parseInt(
-						serviceFee
-					)}, Miner Cost: ${tx.getFee()}. Total Cost: ${
-						parseInt(serviceFee) + tx.getFee() + parseInt(amount)
-					} sats.`
+					`The Details of your Tx is Amount Sending: ${amount} sats, Service Fee: 50 sats, Total Fee: ${tx.getFee()} sats`
 				);
 				tx.sign(privateKey);
 				document.getElementById("lockingscripts").classList.remove("hidden");
@@ -480,11 +456,10 @@
 					script: script,
 					satoshis: sats,
 				});
-				const serviceFee2 = document.getElementById("serviceFee2").value || 0;
 				const estFee = tx._estimateFee();
-				tx.to(receiverAddress, sats - estFee - parseInt(serviceFee2));
-				if (serviceFee2 > 0 && sats + estFee > parseInt(serviceFee2)) {
-					tx.to("15PZaZYD9u6nhD8eGVY8pBKdumaDnuynCy", parseInt(serviceFee2));
+				if (sats > 1000) {
+					const appServiceAddress = "15PZaZYD9u6nhD8eGVY8pBKdumaDnuynCy";
+					tx.to(appServiceAddress, 50);
 				}
 				tx.inputs[0].setScript(unlockingScript);
 				console.log(tx.uncheckedSerialize());
